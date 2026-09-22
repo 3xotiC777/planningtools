@@ -3,8 +3,8 @@
 ## Versión web
 
 La aplicación publicada está en **https://planningtools.onrender.com/**.
-El servicio de Render se despliega desde `3xotiC777/planningtools`; el mismo
-código se mantiene también en `miguelcabezas03/Planingtools`.
+El servicio de Render se despliega desde `miguelcabezas03/Planingtools`; el
+mismo código se mantiene también en `3xotiC777/planningtools`.
 
 La interfaz web está en `web_app.py`. Reutiliza los motores Python para
 depuración, selección, rutas, cruces geográficos, mallas y distancias.
@@ -22,7 +22,7 @@ streamlit run web_app.py
 El repositorio incluye `Dockerfile` y `render.yaml` para crear un servicio web
 Python desde Render. El plan gratuito sirve para validar con archivos pequeños;
 los universos grandes necesitan más memoria y CPU. El servicio existente toma
-su código de `main` en `3xotiC777/planningtools`, pero se creó con la URL
+su código de `main` en `miguelcabezas03/Planingtools`, mediante la URL
 pública del repositorio: después de cada cambio se debe elegir **Manual
 Deploy → Deploy latest commit** en Render. `/_stcore/health` permite comprobar
 su estado.
