@@ -385,6 +385,7 @@ def page_selection() -> None:
                 pdf_path = Path(temp) / f"Resumen_{country.replace(' ', '_')}.pdf"
                 try:
                     pdf_result = copy.copy(result)
+                    pdf_result.pais_activo = country
                     previous = st.session_state.get("dep_result")
                     pdf_result.metricas = {
                         **(previous.metricas if previous is not None else {}),
