@@ -328,13 +328,13 @@
     },
     "El Salvador": {
       "modulo_depuracion": {
-        "archivo_universo": "BASE ICE SV SEPT .xlsx",
-        "hoja_universo": "Hoja2",
+        "archivo_universo": "BASE ICE SV OCT.xlsx",
+        "hoja_universo": "POC ICE ESA",
         "llave_universo": "COD D&N",
-        "archivo_incidencias": "Incidencias 06.xlsx",
+        "archivo_incidencias": "Incidencias 09.xlsx",
         "hoja_incidencias": "Export",
         "llave_incidencias": "Id_PDV",
-        "columna_puente": "COD D&N",
+        "columna_puente": "CODIGÓ",
         "n_digitos_cruce": 8,
         "reglas": {
           "estatus": "Ultima Incidencia",
@@ -359,9 +359,9 @@
         "rotacion": {
           "activa": true,
           "cupos_por_gec": {
-            "ORO": 7,
+            "ORO": 5,
             "PLATA": 4,
-            "BRONCE": 2
+            "BRONCE": 3
           },
           "cupo_por_defecto": 2,
           "columna_gec": "GEC",
@@ -369,12 +369,12 @@
           "hoja_fijos": 0
         },
         "columna_fijo": "FIJO",
-        "columna_lat": "LATITUD",
-        "columna_lon": "LONGITUD",
+        "columna_lat": "Latitud Geografica",
+        "columna_lon": "Longitud Geografica",
         "prefijo_codigo_puente": null,
         "pais_activo": "El Salvador",
         "valor_fijo": "SI",
-        "pxr_minimo": 8,
+        "pxr_minimo": 10,
         "columna_gec": "BASE ACTUAL"
       },
       "modulo_seleccion": {
@@ -394,7 +394,7 @@
           "BRONCE": 600
         },
         "columna_gec": "BASE ACTUAL",
-        "columna_ruta": "Ruta Venta - BDR",
+        "columna_ruta": "RUTA",
         "columna_fijo": "FIJO",
         "valor_fijo": "SI",
         "columna_canal": "Canal+Mayoristas",
@@ -404,8 +404,8 @@
           "max_diferencia_ruta": 5,
           "min_ruta_base": 6
         },
-        "columna_lat": "LATITUD",
-        "columna_lon": "LONGITUD",
+        "columna_lat": "Latitud Geografica",
+        "columna_lon": "Longitud Geografica",
         "dbscan": {
           "eps": 0.01,
           "min_samples": 1
@@ -424,7 +424,7 @@
           "eps": 0.01,
           "min_samples": 1
         },
-        "pxr_minimo": 8
+        "pxr_minimo": 10
       }
     },
     "Guatemala ABVO": {

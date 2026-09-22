@@ -1,0 +1,35 @@
+name: Verificar Planning Tools web
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-web.txt
+      - run: python -m pip install -r requirements-web.txt pytest
+      - run: python -m pytest -q
+      - name: Abrir todos los módulos web
+        run: |
+          python - <<'PY'
+          from streamlit.testing.v1 import AppTest
+          app = AppTest.from_file("web_app.py").run(timeout=60)
+          pages = [
+              "Configuración",
+              "Depuración de universo",
+              "Selección de muestra",
+              "Optimización de rutas",
+              "Cruce y generador de polígonos",
+              "Matriz de distancias",
+          ]
+          for page in pages:
+              app.sidebar.radio[0].set_value(page).run(timeout=60)
+              assert not app.exception, (page, [error.message for error in app.exception])
+          PY

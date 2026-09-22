@@ -1,0 +1,12 @@
+folium>=0.20,<1
+geopandas>=1.0,<2
+numpy>=2.0,<3
+openpyxl>=3.1,<4
+ortools>=9.10,<10
+pandas>=2.2,<4
+pillow>=10,<13
+pyogrio>=0.9,<1
+scipy>=1.13,<2
+shapely>=2,<3
+streamlit>=1.45,<2
+streamlit-folium>=0.24,<1

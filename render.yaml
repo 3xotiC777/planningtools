@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: planningtools
+    runtime: docker
+    plan: free
+    healthCheckPath: /_stcore/health
+    autoDeployTrigger: commit

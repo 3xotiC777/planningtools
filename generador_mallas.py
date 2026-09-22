@@ -13,10 +13,18 @@ import unicodedata
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import filedialog, messagebox
 from typing import Callable
 
-import customtkinter as ctk
+try:
+    from tkinter import filedialog, messagebox
+    import customtkinter as ctk
+except ImportError:  # El motor también se usa en servidores sin escritorio.
+    filedialog = messagebox = None
+
+    class _HeadlessCTk:
+        CTkFrame = object
+
+    ctk = _HeadlessCTk()
 import geopandas as gpd
 import numpy as np
 import pandas as pd

@@ -1,5 +1,7 @@
 # Entornos y cachés de Python
 .venv/
+.venv-web/
+.streamlit/secrets.toml
 venv/
 env/
 __pycache__/

@@ -5,10 +5,18 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
-from tkinter import filedialog, messagebox
 from typing import Any
 
-import customtkinter as ctk
+try:
+    from tkinter import filedialog, messagebox
+    import customtkinter as ctk
+except ImportError:  # Los cálculos son utilizables en entornos web sin Tk.
+    filedialog = messagebox = None
+
+    class _HeadlessCTk:
+        CTkFrame = object
+
+    ctk = _HeadlessCTk()
 import numpy as np
 import pandas as pd
 from openpyxl import Workbook

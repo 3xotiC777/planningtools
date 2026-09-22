@@ -1,5 +1,30 @@
 # Planning Tools v1.2.0 — Suite de Planeación
 
+## Versión web
+
+La interfaz web está en `web_app.py`. Reutiliza los motores Python para
+depuración, selección, rutas, cruces geográficos, mallas y distancias.
+Cada usuario carga sus Excel y capas desde el navegador y descarga los
+resultados. Las bases operativas, los resultados y los logs siguen fuera de
+GitHub. Los archivos temporales de cada ejecución se eliminan al terminar.
+
+Para ejecutarla en un servidor o localmente:
+
+```bash
+pip install -r requirements-web.txt
+streamlit run web_app.py
+```
+
+El repositorio incluye `Dockerfile` y `render.yaml` para crear un servicio web
+Python desde Render. El plan gratuito sirve para validar con archivos pequeños;
+los universos grandes necesitan más memoria y CPU. En Render, conectar este
+repositorio como Blueprint y comprobar `/_stcore/health` tras el despliegue.
+El servicio debe protegerse con los controles de acceso apropiados para los
+datos de la organización.
+
+La versión de escritorio continúa disponible mediante
+`Ejecutar Planning Tools.bat`. Su instalación usa `requirements.txt`.
+
 Aplicación de escritorio para Windows con módulos de configuración,
 depuración de universo, selección de muestra, optimización de rutas y manejo
 de polígonos.

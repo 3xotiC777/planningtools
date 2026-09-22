@@ -1,0 +1,26 @@
+.git
+.venv
+.venv-web
+__pycache__
+.pytest_cache
+.streamlit/secrets.toml
+tests
+Entrada Depuracion
+Entrada Seleccion
+Salida Depuracion
+Salida Muestras
+Salida Optimizacion Rutas
+Salida Matriz Distancias
+Salida Cruce y Poligonos
+Poligonos Muestras
+Resumenes
+Logs
+tmp
+*.xlsx
+*.xls
+*.xlsm
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.pdf
