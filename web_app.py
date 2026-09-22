@@ -279,7 +279,8 @@ def page_depuracion() -> None:
                     target.mkdir(parents=True, exist_ok=True)
                     for item in archive.infolist():
                         if Path(item.filename).suffix.lower() in allowed and not item.is_dir():
-                            (target / Path(item.filename).name).write_bytes(archive.read(item))
+                            extension = Path(item.filename).suffix.lower()
+                            (target / f"LATAM DN{extension}").write_bytes(archive.read(item))
             if sample_polygons:
                 save_upload(sample_polygons, base / "Poligonos Muestras" / "DELIMITACION PAISES")
             bar = st.progress(0, text="Preparando archivos...")
@@ -383,7 +384,13 @@ def page_selection() -> None:
                 }
                 pdf_path = Path(temp) / f"Resumen_{country.replace(' ', '_')}.pdf"
                 try:
-                    _generar_pdf(result, pdf_path)
+                    pdf_result = copy.copy(result)
+                    previous = st.session_state.get("dep_result")
+                    pdf_result.metricas = {
+                        **(previous.metricas if previous is not None else {}),
+                        **result.metricas,
+                    }
+                    _generar_pdf(pdf_result, pdf_path)
                     files[pdf_path.name] = pdf_path.read_bytes()
                 except Exception as exc:
                     st.warning(f"No se pudo generar el PDF consolidado: {exc}")
