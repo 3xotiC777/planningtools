@@ -1,0 +1,1299 @@
+{
+  "pais_activo": "El Salvador",
+  "paises": {
+    "Chile": {
+      "modulo_depuracion": {
+        "archivo_universo": "02. Marco Muestral ICE PA_ Sep26_Planeación TR&MT_v1.xlsx",
+        "hoja_universo": "BASE PDV",
+        "llave_universo": "CÓDIGO",
+        "columna_puente": "Codigo DN",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "columna_gec": "GEC",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "columna_canal": "Canal",
+        "columna_ruta": "Ruta",
+        "prefijo_codigo_puente": null,
+        "n_digitos_cruce": 8,
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- CHILE"
+        },
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 6103,
+        "ratio_suplentes": 4,
+        "cuotas_tipo": {
+          "FIJO": 1251,
+          "VARIABLE": 3899
+        },
+        "cuotas_canal": {
+          "OFF": 4600,
+          "ON": 550
+        },
+        "cuotas_gec": {
+          "ORO": 1946,
+          "PLATA": 3724,
+          "BRONCE": 433
+        },
+        "cuotas_region": {
+          "ARICA": 155,
+          "CONCEPCION": 927,
+          "IQUIQUE": 206,
+          "PUERTO MONTT": 772,
+          "TALCA": 1030,
+          "TEMUCO": 1082,
+          "VIÑA DEL MAR": 978
+        },
+        "cuotas_subcanal": {
+          "ALMACEN CON PATENTE": 1350,
+          "ALMACENES TRADICIONALES": 2800,
+          "BOTILLERIAS": 450,
+          "ON PREMISE": 550
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "Ruta Venta",
+        "columna_region": "REGION",
+        "columna_subcanal": "SUBCANAL",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal",
+        "min_pdv_ruta": 1,
+        "max_pdv_ruta": 200,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 195,
+          "min_ruta_base": 5
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 1946,
+          "plata": 3724,
+          "bronce": 433,
+          "fijos": 1251,
+          "variables": 3899,
+          "canal_on": 550,
+          "canal_off": 4600
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Costa Rica": {
+      "modulo_depuracion": {
+        "archivo_universo": "MM Costa Rica Septiembre 2026 - Planeación.xlsx",
+        "hoja_universo": "MM CR",
+        "llave_universo": "RefIDEmbotellador",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "Codigo D&N",
+        "n_digitos_cruce": 7,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD) COSTA RICA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "prefijo_codigo_puente": null,
+        "prefijos_codigo_puente_por_longitud": {
+          "9": "150"
+        },
+        "prefijo_codigo_puente_defecto": "154",
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1664,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 494,
+          "VARIABLE": 1170
+        },
+        "cuotas_canal": {
+          "OFF": 1597,
+          "ON": 67
+        },
+        "cuotas_gec": {
+          "ORO": 466,
+          "PLATA": 649,
+          "BRONCE": 549
+        },
+        "columna_gec": "Gec",
+        "columna_ruta": "Ruta",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal",
+        "min_pdv_ruta": 8,
+        "max_pdv_ruta": 17,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 9,
+          "min_ruta_base": 8
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 466,
+          "plata": 649,
+          "bronce": 549,
+          "fijos": 494,
+          "variables": 1170,
+          "canal_on": 67,
+          "canal_off": 1597
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Ecuador": {
+      "modulo_depuracion": {
+        "archivo_universo": "08 Base Clientes EC v2.xlsx",
+        "hoja_universo": "Hoja2",
+        "llave_universo": "Código",
+        "archivo_incidencias": "incidencias.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "RefID",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- ECUADOR"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "prefijo_codigo_puente": null,
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 807,
+        "ratio_suplentes": 5,
+        "cuotas_tipo": {
+          "FIJO": 220,
+          "VARIABLE": 587
+        },
+        "cuotas_canal": {
+          "HOME MARKET TRADICIONAL": 718,
+          "ON PREMISE": 89
+        },
+        "cuotas_gec": {
+          "ORO": 0.5502,
+          "PLATA": 0.2602,
+          "BRONCE": 0.1896
+        },
+        "cuotas_agencia": {
+          "AMBATO": 85,
+          "CUENCA": 70,
+          "GUAYAQUIL CENTRO": 56,
+          "GUAYAQUIL NORTE": 88,
+          "IMBABURA": 50,
+          "MANTA": 20,
+          "PORTOVIEJO": 90,
+          "QUITO NORTE": 160,
+          "QUITO SUR": 74,
+          "QUITO VALLE": 44,
+          "RIOBAMBA": 70
+        },
+        "cuotas_agencia_canal": {
+          "cuota_on_premise_total": 89,
+          "cuota_home_total": 718
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "",
+        "columna_agencia": "Agencia",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_canal": "CANAL DN",
+        "min_pdv_ruta": 1,
+        "max_pdv_ruta": 200,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 0,
+          "min_ruta_base": 0
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.02,
+          "min_samples": 3
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 444,
+          "plata": 210,
+          "bronce": 153,
+          "fijos": 220,
+          "variables": 587,
+          "canal_on": 89,
+          "canal_off": 718
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "El Salvador": {
+      "modulo_depuracion": {
+        "archivo_universo": "BASE ICE SV SEPT .xlsx",
+        "hoja_universo": "Hoja2",
+        "llave_universo": "COD D&N",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "COD D&N",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- EL SALVADOR"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 7,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "FIJO",
+        "columna_lat": "LATITUD",
+        "columna_lon": "LONGITUD",
+        "prefijo_codigo_puente": null,
+        "pais_activo": "El Salvador",
+        "valor_fijo": "SI",
+        "pxr_minimo": 8,
+        "columna_gec": "BASE ACTUAL"
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1200,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 360,
+          "VARIABLE": 840
+        },
+        "cuotas_canal": {
+          "OFF": 1092,
+          "ON": 108
+        },
+        "cuotas_gec": {
+          "ORO": 180,
+          "PLATA": 420,
+          "BRONCE": 600
+        },
+        "columna_gec": "BASE ACTUAL",
+        "columna_ruta": "Ruta Venta - BDR",
+        "columna_fijo": "FIJO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal+Mayoristas",
+        "min_pdv_ruta": 6,
+        "max_pdv_ruta": 15,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 5,
+          "min_ruta_base": 6
+        },
+        "columna_lat": "LATITUD",
+        "columna_lon": "LONGITUD",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 180,
+          "plata": 420,
+          "bronce": 600,
+          "fijos": 360,
+          "variables": 840,
+          "canal_on": 108,
+          "canal_off": 1092
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 8
+      }
+    },
+    "Guatemala ABVO": {
+      "modulo_depuracion": {
+        "archivo_universo": "BASE CLIENTE ICE SEPTIEMBRE 2026 COMPARTIDA D&N- ABVO.xlsx",
+        "hoja_universo": "BASE ICE SEPTIEMBRE",
+        "llave_universo": "Codigo DN",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "Codigo DN",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- ABVO GUATEMALA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "Cliente fijo",
+        "columna_lat": "LONGITUD",
+        "columna_lon": "LATITUD",
+        "prefijo_codigo_puente": null,
+        "pais_activo": "Guatemala ABVO",
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1636,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 327,
+          "VARIABLE": 1309
+        },
+        "cuotas_canal": {
+          "OFF": 1554,
+          "ON": 82
+        },
+        "cuotas_gec": {
+          "ORO": 409,
+          "PLATA": 1063,
+          "BRONCE": 164
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "Ruta Venta",
+        "columna_fijo": "Cliente fijo",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal País",
+        "min_pdv_ruta": 6,
+        "max_pdv_ruta": 12,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 6,
+          "min_ruta_base": 6
+        },
+        "columna_lat": "LONGITUD",
+        "columna_lon": "LATITUD",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "codigos_prioritarios": [
+          7809000036,
+          7809000049,
+          7809002863,
+          7809004750,
+          7809004970,
+          7809005648,
+          7809009027,
+          7809009045,
+          7809009539,
+          7820001398,
+          7820006660,
+          7820007507,
+          7820011431,
+          7820011803,
+          7820013327,
+          7820014327,
+          7820014853,
+          7820015750,
+          7820016380,
+          7820019136,
+          7820021864,
+          7820021998,
+          7820026208,
+          7820026407
+        ],
+        "muestra_ruta": {
+          "oro": 409,
+          "plata": 1063,
+          "bronce": 164,
+          "fijos": 327,
+          "variables": 1309,
+          "canal_on": 82,
+          "canal_off": 1554
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Guatemala EMBOCEN": {
+      "modulo_depuracion": {
+        "archivo_universo": "Universo.xlsx",
+        "hoja_universo": "REPETIVIDAD",
+        "llave_universo": "CÓDIGO",
+        "archivo_incidencias": "Incidencia.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "Código DN",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- EMBO GUATEMALA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "Cliente fijo",
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "prefijo_codigo_puente": null,
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1636,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 389,
+          "VARIABLE": 1247
+        },
+        "cuotas_canal": {
+          "ON": 82,
+          "OFF": 1554
+        },
+        "cuotas_gec": {
+          "ORO": 409,
+          "PLATA": 1063,
+          "BRONCE": 164
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "Ruta Venta",
+        "columna_fijo": "Cliente fijo",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal País",
+        "min_pdv_ruta": 6,
+        "max_pdv_ruta": 12,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 6,
+          "min_ruta_base": 6
+        },
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 0,
+          "plata": 0,
+          "bronce": 0,
+          "fijos": 0,
+          "variables": 0,
+          "canal_on": 0,
+          "canal_off": 0
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Honduras": {
+      "modulo_depuracion": {
+        "archivo_universo": "BASE ICE SEPT HN VF.xlsx",
+        "hoja_universo": "Hoja1",
+        "llave_universo": "RefID",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "RefID",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- HONDURAS"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "Gec",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "FIJO",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "prefijo_codigo_puente": null,
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1800,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 540,
+          "VARIABLE": 1260
+        },
+        "cuotas_canal": {
+          "OFF": 1674,
+          "ON": 126
+        },
+        "cuotas_gec": {
+          "ORO": 633,
+          "PLATA": 681,
+          "BRONCE": 486
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "RutaEmbotellador",
+        "columna_fijo": "FIJO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal",
+        "min_pdv_ruta": 8,
+        "max_pdv_ruta": 17,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 9,
+          "min_ruta_base": 8
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 633,
+          "plata": 681,
+          "bronce": 486,
+          "fijos": 540,
+          "variables": 1260,
+          "canal_on": 126,
+          "canal_off": 1674
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Nicaragua": {
+      "modulo_depuracion": {
+        "archivo_universo": "z. MM Nicaragua Septiembre 2026 - Planeación.xlsx",
+        "hoja_universo": "BASE PDV",
+        "llave_universo": "RefIDEmbotellador",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "Codigo D&N",
+        "n_digitos_cruce": 7,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD) NICARAGUA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 5,
+            "PLATA": 3,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "Gec",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "prefijo_codigo_puente": "160",
+        "valor_fijo": "SI",
+        "pais_activo": "Nicaragua",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 960,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 288,
+          "VARIABLE": 672
+        },
+        "cuotas_canal": {
+          "OFF": 910,
+          "ON": 50
+        },
+        "cuotas_gec": {
+          "ORO": 254,
+          "PLATA": 497,
+          "BRONCE": 209
+        },
+        "columna_gec": "Gec",
+        "columna_ruta": "Ruta",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal",
+        "min_pdv_ruta": 6,
+        "max_pdv_ruta": 15,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 5,
+          "min_ruta_base": 6
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 254,
+          "plata": 497,
+          "bronce": 209,
+          "fijos": 288,
+          "variables": 672,
+          "canal_on": 50,
+          "canal_off": 910
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Panamá": {
+      "modulo_depuracion": {
+        "archivo_universo": "02. Marco Muestral ICE PA_ Sep26_Planeación TR&MT_v1.xlsx",
+        "hoja_universo": "BASE TR Sep",
+        "llave_universo": "RefID",
+        "archivo_incidencias": "Incidencias 06.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "RefID",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- PANAMA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "prefijo_codigo_puente": null,
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1200,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 360,
+          "VARIABLE": 840
+        },
+        "cuotas_canal": {
+          "OFF": 1144,
+          "ON": 56
+        },
+        "cuotas_gec": {
+          "ORO": 720,
+          "PLATA": 408,
+          "BRONCE": 72
+        },
+        "columna_gec": "Gec",
+        "columna_ruta": "Ruta",
+        "columna_fijo": "PDV FIJO/PRIORITARIO",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal",
+        "min_pdv_ruta": 8,
+        "max_pdv_ruta": 15,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 5,
+          "min_ruta_base": 8
+        },
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 720,
+          "plata": 408,
+          "bronce": 72,
+          "fijos": 360,
+          "variables": 840,
+          "canal_on": 56,
+          "canal_off": 1144
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "República Dominicana": {
+      "modulo_depuracion": {
+        "archivo_universo": "BDD SEPTIEMBRE 2026 recibida.xlsx",
+        "hoja_universo": "BDD SEPTIEMBRE 2026",
+        "llave_universo": "RefIDBase (d&n)",
+        "archivo_incidencias": "Incidencia.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "columna_puente": "ID cliente/PDV",
+        "n_digitos_cruce": 8,
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD) REPUBLICA DOMINICANA"
+        },
+        "columnas_reporte_universo": [
+          "CÓDIGO",
+          "Nombre de Cliente",
+          "Departamento",
+          "Municipio",
+          "GEC",
+          "Canal País"
+        ],
+        "columnas_reporte_incidencia": [
+          "Estatus",
+          "Comentario",
+          "UFA",
+          "Estudio_pais"
+        ],
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "GEC",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "prefijo_codigo_puente": null,
+        "columna_fijo": "CLIENTE FIJO 30%",
+        "valor_fijo": "SI",
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1800,
+        "ratio_suplentes": 5,
+        "cuotas_gec": {
+          "ORO": 540,
+          "PLATA": 1044,
+          "BRONCE": 216
+        },
+        "cuotas_canal": {
+          "OFF": 1620,
+          "ON": 180
+        },
+        "cuotas_tipo": {
+          "FIJO": 540,
+          "VARIABLE": 1260
+        },
+        "cuotas_fijo_canal": {
+          "FIJO_OFF": 492,
+          "FIJO_ON": 48
+        },
+        "columna_gec": "TAMAÑO ICE KO",
+        "columna_ruta": "RUTA-LOCALIDAD D&N",
+        "columna_agencia": "LOCALIDAD-AGENCIA",
+        "columna_subcanal": "SUB CANAL",
+        "columna_fijo": "CLIENTE FIJO 30%",
+        "valor_fijo": "SI",
+        "columna_canal": "TIPO CLIENTE ICE (D&N)",
+        "columna_peso": "PESO_CELDA",
+        "min_pdv_ruta": 1,
+        "max_pdv_ruta": 7,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 5,
+          "min_ruta_base": 5
+        },
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 540,
+          "plata": 1044,
+          "bronce": 216,
+          "fijos": 540,
+          "variables": 1260,
+          "canal_on": 180,
+          "canal_off": 1620
+        },
+        "cluster": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Panama": {
+      "modulo_depuracion": {
+        "archivo_universo": "Universo.xlsx",
+        "hoja_universo": "BASE TR Marz",
+        "llave_universo": "NSR Client ID",
+        "columna_puente": "Codigo D&N",
+        "columna_fijo": "Cliente fijo",
+        "columna_lat": "Latitud",
+        "columna_lon": "Longitud",
+        "prefijo_codigo_puente": null,
+        "n_digitos_cruce": 8,
+        "archivo_incidencias": "Incidencia.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD)- PANAMA"
+        },
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "Gec",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1200,
+        "ratio_suplentes": 3,
+        "cuotas_tipo": {
+          "FIJO": 360,
+          "VARIABLE": 840
+        },
+        "cuotas_canal": {
+          "ON": 52,
+          "OFF": 1148
+        },
+        "cuotas_gec": {
+          "ORO": 720,
+          "PLATA": 408,
+          "BRONCE": 72
+        },
+        "columna_gec": "GEC",
+        "columna_ruta": "Ruta Venta",
+        "columna_fijo": "Cliente fijo",
+        "valor_fijo": "SI",
+        "columna_canal": "Canal País",
+        "min_pdv_ruta": 8,
+        "max_pdv_ruta": 15,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 5,
+          "min_ruta_base": 8
+        },
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 0,
+          "plata": 0,
+          "bronce": 0,
+          "fijos": 0,
+          "variables": 0,
+          "canal_on": 0,
+          "canal_off": 0
+        },
+        "pxr_minimo": 10
+      }
+    },
+    "Republica Dominicana": {
+      "modulo_depuracion": {
+        "archivo_universo": "Universo.xlsx",
+        "hoja_universo": "REPETITIVIDAD",
+        "llave_universo": "ID cliente/PDV",
+        "columna_puente": "RefIDBase (d&n)",
+        "columna_fijo": "CLIENTE FIJO 30%",
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "prefijo_codigo_puente": null,
+        "n_digitos_cruce": 8,
+        "archivo_incidencias": "Incidencia.xlsx",
+        "hoja_incidencias": "Export",
+        "llave_incidencias": "Id_PDV",
+        "reglas": {
+          "estatus": "Ultima Incidencia",
+          "comentario": "No Elegible",
+          "ufa_anio": 2026,
+          "estudio_pais": "COCA COLA (KO TRD) REPUBLICA DOMINICANA"
+        },
+        "rotacion": {
+          "activa": true,
+          "cupos_por_gec": {
+            "ORO": 6,
+            "PLATA": 4,
+            "BRONCE": 2
+          },
+          "cupo_por_defecto": 2,
+          "columna_gec": "TAMAÑO ICE KO",
+          "archivo_fijos": "Fijos.xlsx",
+          "hoja_fijos": 0
+        },
+        "valor_fijo": "SI",
+        "pxr_minimo": 10
+      },
+      "modulo_seleccion": {
+        "tamano_muestra": 1800,
+        "ratio_suplentes": 5,
+        "cuotas_gec": {
+          "ORO": 540,
+          "PLATA": 1044,
+          "BRONCE": 216
+        },
+        "cuotas_canal": {
+          "OFF": 1620,
+          "ON": 180
+        },
+        "cuotas_tipo": {
+          "VARIABLE": 1260,
+          "FIJO": 540
+        },
+        "cuotas_fijo_canal": {
+          "FIJO_OFF": 492,
+          "FIJO_ON": 48
+        },
+        "columna_gec": "TAMAÑO ICE KO",
+        "columna_ruta": "RUTA PREVENTA",
+        "columna_agencia": "LOCALIDAD-AGENCIA",
+        "columna_subcanal": "SUB CANAL",
+        "columna_fijo": "CLIENTE FIJO 30%",
+        "valor_fijo": "SI",
+        "columna_canal": "TIPO CLIENTE ICE (D&N)",
+        "columna_peso": "PESO_CELDA",
+        "min_pdv_ruta": 5,
+        "max_pdv_ruta": 7,
+        "puntos_rutas": {
+          "max_diferencia_ruta": 2,
+          "min_ruta_base": 5
+        },
+        "columna_lat": "LATITUDE",
+        "columna_lon": "LONGITUDE",
+        "dbscan": {
+          "eps": 0.01,
+          "min_samples": 1
+        },
+        "semilla": 2026,
+        "muestra_ruta": {
+          "oro": 0,
+          "plata": 0,
+          "bronce": 0,
+          "fijos": 0,
+          "variables": 0,
+          "canal_on": 0,
+          "canal_off": 0
+        },
+        "pxr_minimo": 10
+      }
+    }
+  },
+  "alias_columnas": {
+    "llave_universo": [
+      "CÓDIGO",
+      "CODIGO",
+      "Código",
+      "RefID",
+      "RefIDEmbotellador",
+      "RefIDBase (d&n)",
+      "ID cliente/PDV",
+      "NSR Client ID"
+    ],
+    "columna_puente": [
+      "Codigo DN",
+      "Codigo D&N",
+      "Código DN",
+      "RefIDBase (d&n)",
+      "RefIDEmbotellador",
+      "CODIGO",
+      "CÓDIGO"
+    ],
+    "columna_fijo": [
+      "Cliente Fijo",
+      "Cliente fijo",
+      "CLIENTE FIJO 30%",
+      "PDV FIJO/PRIORITARIO",
+      "FIJO",
+      "PDV_Fijo",
+      "PuntoFijoABI"
+    ],
+    "columna_gec": [
+      "GEC",
+      "Gec",
+      "TAMAÑO ICE KO",
+      "CLASIFICACION ICE",
+      "Tamaño"
+    ],
+    "columna_lat": [
+      "LATITUD",
+      "LATITUDE",
+      "Latitud",
+      "Lat",
+      "LAT",
+      "LA",
+      "Coordenada X",
+      "x",
+      "X"
+    ],
+    "columna_lon": [
+      "LONGITUD",
+      "LONGITUDE",
+      "Longitud",
+      "Lon",
+      "LON",
+      "LO",
+      "Coordenada Y",
+      "y",
+      "Y"
+    ],
+    "columna_canal": [
+      "Canal País",
+      "Canal",
+      "SubCanal",
+      "SUB CANAL",
+      "Tipo Canal",
+      "Clasificación"
+    ],
+    "columna_ruta": [
+      "Ruta Venta",
+      "Ruta",
+      "RUTA",
+      "RUTA PREVENTA",
+      "RutaEmbotellador"
+    ]
+  }
+}

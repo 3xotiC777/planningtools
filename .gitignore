@@ -1,0 +1,60 @@
+# Entornos y cachés de Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Compilación y distribución
+build/
+dist/
+*.spec.bak
+
+# Datos operativos y resultados
+Entrada Depuracion/
+Entrada Seleccion/
+Salida Depuracion/
+Salida Muestras/
+Salida Optimizacion Rutas/
+Salida Matriz Distancias/
+Salida Cruce y Poligonos/
+Poligonos Muestras/
+Resumenes/
+Logs/
+tmp/
+
+# Archivos de datos que nunca deben publicarse
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.tsv
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.prj
+*.geojson
+*.parquet
+*.feather
+*.log
+*.pdf
+
+# Archivos temporales del sistema y del editor
+.planning_tools_write_*
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+~$*
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
