@@ -21,9 +21,11 @@ streamlit run web_app.py
 
 El repositorio incluye `Dockerfile` y `render.yaml` para crear un servicio web
 Python desde Render. El plan gratuito sirve para validar con archivos pequeños;
-los universos grandes necesitan más memoria y CPU. El servicio existente se
-actualiza automáticamente con cada commit a `main` del repositorio
-`3xotiC777/planningtools`; `/_stcore/health` permite comprobar su estado.
+los universos grandes necesitan más memoria y CPU. El servicio existente toma
+su código de `main` en `3xotiC777/planningtools`, pero se creó con la URL
+pública del repositorio: después de cada cambio se debe elegir **Manual
+Deploy → Deploy latest commit** en Render. `/_stcore/health` permite comprobar
+su estado.
 La URL es pública y todavía no exige inicio de sesión: antes de cargar datos
 confidenciales, se deben habilitar controles de acceso apropiados.
 
