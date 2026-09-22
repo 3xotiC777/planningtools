@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import html
 import io
 import json
 import os
@@ -43,6 +44,7 @@ from optimizacion_rutas import (
 )
 from seleccion import SelectorMuestra
 from reportes import _generar_pdf
+from utilidades import VERSION
 
 
 ROOT = Path(__file__).resolve().parent
@@ -51,17 +53,21 @@ MAX_MAP_POINTS = 2500
 
 st.set_page_config(page_title=APP_TITLE, page_icon="🗺️", layout="wide")
 st.markdown(
-    """
-    <style>
-      :root { --azul: #0d5cab; --tinta: #1c293a; }
-      .block-container { padding-top: 1.6rem; max-width: 1600px; }
-      h1, h2, h3 { color: var(--tinta); letter-spacing: -.025em; }
-      [data-testid="stSidebar"] { background: #eef4f9; }
-      [data-testid="stMetricValue"] { color: var(--azul); }
-      .stButton button[kind="primary"] { background: var(--azul); }
-    </style>
-    """,
+    f"<style>{(ROOT / 'assets' / 'desktop_theme.css').read_text(encoding='utf-8')}</style>",
     unsafe_allow_html=True,
+)
+
+NAV_MODULES = (
+    ("Configuración", "⚙️", True),
+    ("Depuración de Universo", "🧹", True),
+    ("Selección de muestra", "📊", True),
+    ("Matriz de distancias", "↔️", True),
+    ("Optimización de rutas", "📍", True),
+    ("Cruce y generador de polígonos", "⬡", True),
+    ("Validación de cuotas", "✔️", False),
+    ("Control de calidad", "🔎", False),
+    ("Dashboard de indicadores", "📈", False),
+    ("Exportación de reportes", "📦", False),
 )
 
 
@@ -71,6 +77,10 @@ def configuration() -> dict:
             (ROOT / "Config" / "config.json").read_text(encoding="utf-8")
         )
     return st.session_state.config
+
+
+def change_country() -> None:
+    configuration()["pais_activo"] = st.session_state.country_select
 
 
 def save_upload(upload, folder: Path) -> Path:
@@ -177,50 +187,131 @@ def mask_drawn_area(df: pd.DataFrame, lat_col: str, lon_col: str, drawings: list
     return selected
 
 
-def header() -> None:
-    st.title("Planning Tools")
-    st.caption("Planeación regional · depuración, muestra y análisis geográfico")
+def page_header(title: str, subtitle: str) -> None:
+    st.markdown(
+        f'<div class="pt-page-title">{html.escape(title)}</div>'
+        f'<div class="pt-page-subtitle">{html.escape(subtitle)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def card_title(title: str, caption: str = "") -> None:
+    st.markdown(f'<div class="pt-card-title">{html.escape(title)}</div>', unsafe_allow_html=True)
+    if caption:
+        st.markdown(f'<div class="pt-card-caption">{html.escape(caption)}</div>', unsafe_allow_html=True)
+
+
+def group_title(title: str) -> None:
+    st.markdown(f'<div class="pt-group-title">{html.escape(title)}</div>', unsafe_allow_html=True)
+
+
+def parameter_row(label: str):
+    label_column, input_column = st.columns([0.44, 0.56], gap="small", vertical_alignment="center")
+    label_column.markdown(
+        f'<div class="pt-field-label">{html.escape(label)}</div>', unsafe_allow_html=True,
+    )
+    return input_column
+
+
+def text_parameter(data: dict, field: str, label: str, country: str, section: str) -> None:
+    data[field] = parameter_row(label).text_input(
+        label, str(data.get(field) or ""), key=f"cfg_{section}_{field}_{country}",
+        label_visibility="collapsed",
+    )
+
+
+def int_parameter(data: dict, field: str, label: str, country: str, section: str,
+                  *, minimum: int = 0, default: int = 0, compact: bool = True) -> None:
+    input_area = parameter_row(label) if compact else st
+    data[field] = int(input_area.number_input(
+        label, min_value=minimum, value=max(minimum, int(data.get(field, default) or default)),
+        step=1, key=f"cfg_{section}_{field}_{country}",
+        label_visibility="collapsed" if compact else "visible",
+    ))
 
 
 def page_configuration() -> None:
-    st.header("Configuración")
     cfg = configuration()
-    country = st.selectbox(
-        "País activo",
-        list(cfg["paises"]),
-        index=list(cfg["paises"]).index(cfg["pais_activo"]),
-        key="country_select",
-    )
+    heading, selector = st.columns([3, 1], vertical_alignment="center")
+    with heading:
+        page_header("Configuración", "Seleccione los archivos, hojas y ajuste los parámetros generales.")
+    with selector:
+        country = st.selectbox(
+            "País:", list(cfg["paises"]),
+            index=list(cfg["paises"]).index(cfg["pais_activo"]), key="country_select",
+            on_change=change_country,
+        )
     cfg["pais_activo"] = country
-    tab_dep, tab_sel, tab_full = st.tabs(["Depuración", "Selección", "Configuración completa"])
-    with tab_dep:
-        dep = cfg["paises"][country]["modulo_depuracion"]
-        dep["hoja_universo"] = st.text_input("Hoja de universo", dep.get("hoja_universo", ""))
-        dep["hoja_incidencias"] = st.text_input("Hoja de incidencias", dep.get("hoja_incidencias", ""))
-        for key, label in (
-            ("llave_universo", "Código de universo"),
-            ("columna_puente", "Columna puente"),
-            ("llave_incidencias", "Código de incidencias"),
-            ("columna_lat", "Latitud"),
-            ("columna_lon", "Longitud"),
+    dep = cfg["paises"][country]["modulo_depuracion"]
+    sel = cfg["paises"][country]["modulo_seleccion"]
+
+    left, right = st.columns(2, gap="medium")
+    with left, st.container(border=True):
+        card_title("Archivos Principales")
+        text_parameter(dep, "archivo_universo", "Universo", country, "dep")
+        text_parameter(dep, "hoja_universo", "Hoja Universo", country, "dep")
+        text_parameter(dep, "archivo_incidencias", "Incidencias", country, "dep")
+        text_parameter(dep, "hoja_incidencias", "Hoja Incidencias", country, "dep")
+    with right, st.container(border=True):
+        card_title("Puntos de Rutas y Cluster")
+        int_parameter(sel, "min_pdv_ruta", "Min de Ruta", country, "sel")
+        int_parameter(sel, "max_pdv_ruta", "Max de Ruta", country, "sel")
+        route_limits = sel.setdefault("puntos_rutas", {})
+        int_parameter(route_limits, "max_diferencia_ruta", "Max dif. de Ruta", country, "route")
+        int_parameter(route_limits, "min_ruta_base", "Min Ruta de Base", country, "route")
+        cluster = sel.setdefault("dbscan", sel.get("cluster", {}))
+        cluster["eps"] = float(parameter_row("Cluster EPS").number_input(
+            "Cluster EPS", min_value=0.0, value=float(cluster.get("eps", 0.01)),
+            step=0.01, format="%.4f", key=f"cfg_cluster_eps_{country}",
+            label_visibility="collapsed",
+        ))
+        int_parameter(cluster, "min_samples", "Cluster Min Samples", country, "cluster", minimum=1, default=1)
+
+    left, right = st.columns(2, gap="medium")
+    with left, st.container(border=True):
+        card_title("Mapeo de Columnas")
+        text_parameter(dep, "llave_universo", "Código de universo", country, "dep")
+        text_parameter(dep, "llave_incidencias", "Código de incidencias", country, "dep")
+        text_parameter(dep, "columna_puente", "Código Puente", country, "dep")
+        for field, label in (("columna_lat", "Latitud"), ("columna_lon", "Longitud")):
+            text_parameter(dep, field, label, country, "dep")
+        for field, label in (
+            ("columna_ruta", "Ruta"), ("columna_gec", "Gec"),
+            ("columna_canal", "Canal"), ("columna_fijo", "Fijos"),
+            ("valor_fijo", "Valor del Fijo"),
         ):
-            dep[key] = st.text_input(label, dep.get(key, ""), key=f"dep_{key}_{country}")
-    with tab_sel:
-        sel = cfg["paises"][country]["modulo_seleccion"]
-        sel["tamano_muestra"] = st.number_input(
-            "Tamaño de muestra", min_value=1, value=int(sel.get("tamano_muestra", 1))
-        )
-        sel["ratio_suplentes"] = st.number_input(
-            "Suplentes por titular", min_value=0, value=int(sel.get("ratio_suplentes", 0))
-        )
-        for key, label in (
-            ("columna_gec", "GEC"),
-            ("columna_ruta", "Ruta"),
-            ("columna_lat", "Latitud"),
-            ("columna_lon", "Longitud"),
-        ):
-            sel[key] = st.text_input(label, sel.get(key, ""), key=f"sel_{key}_{country}")
-    with tab_full:
+            text_parameter(sel, field, label, country, "sel")
+        for field, label in (("columna_lat", "Latitud de selección"), ("columna_lon", "Longitud de selección")):
+            text_parameter(sel, field, label, country, "sel")
+    with right, st.container(border=True):
+        card_title("Muestra Selección", "Cuotas de selección y límites de repetitividad.")
+        int_parameter(sel, "tamano_muestra", "Tamaño de muestra", country, "sel", minimum=1, default=1)
+        int_parameter(sel, "ratio_suplentes", "Suplentes por titular", country, "sel")
+        sample_left, sample_right = st.columns(2, gap="small")
+        with sample_left:
+            group_title("1. GEC")
+            for name in ("ORO", "PLATA", "BRONCE"):
+                int_parameter(sel.setdefault("cuotas_gec", {}), name, name.title(), country, "gec", compact=False)
+            group_title("3. Canal")
+            channel_quotas = sel.setdefault("cuotas_canal", {})
+            for name, alternatives in (
+                ("OFF", ("OFF", "HOME MARKET TRADICIONAL")),
+                ("ON", ("ON", "ON PREMISE")),
+            ):
+                stored_name = next((key for key in alternatives if key in channel_quotas), name)
+                int_parameter(channel_quotas, stored_name, name, country, "canal", compact=False)
+        with sample_right:
+            group_title("2. Fijos / Variables")
+            for name in ("VARIABLE", "FIJO"):
+                int_parameter(sel.setdefault("cuotas_tipo", {}), name, name.title(), country, "tipo", compact=False)
+            group_title("4. REP")
+            repeat = dep.setdefault("rotacion", {}).setdefault("cupos_por_gec", {})
+            for name in ("ORO", "PLATA", "BRONCE"):
+                int_parameter(repeat, name, f"{name.title()} REP", country, "rep", compact=False)
+        group_title("5. PXR")
+        int_parameter(dep, "pxr_minimo", "Mínimo elegible", country, "dep")
+
+    with st.expander("Cuotas y parámetros específicos del país · configuración completa"):
         raw = st.text_area(
             "Parámetros JSON de esta sesión",
             json.dumps(cfg, ensure_ascii=False, indent=2),
@@ -233,19 +324,22 @@ def page_configuration() -> None:
                 if "paises" not in parsed or "pais_activo" not in parsed:
                     raise ValueError("Faltan las claves paises o pais_activo.")
                 st.session_state.config = parsed
-                st.success("Configuración aplicada en esta sesión.")
+                st.session_state.pop("country_select", None)
+                st.rerun()
             except (ValueError, TypeError) as exc:
                 show_error(exc)
+    st.caption("Los cambios de la página se mantienen en esta sesión. Descargue el JSON para conservarlos fuera del navegador.")
     st.download_button(
-        "Descargar configuración",
+        "Guardar Configuración (descargar JSON)",
         json.dumps(configuration(), ensure_ascii=False, indent=2).encode("utf-8"),
         "config.json",
         "application/json",
+        type="primary",
     )
 
 
 def page_depuracion() -> None:
-    st.header("Depuración de universo")
+    page_header("Depuración de Universo", "Excluye del universo las tiendas con incidencias no elegibles antes de la selección de muestra.")
     cfg = configuration()
     country = cfg["pais_activo"]
     st.caption(f"País: {country}")
@@ -309,7 +403,7 @@ def page_depuracion() -> None:
 
 
 def page_selection() -> None:
-    st.header("Selección de muestra")
+    page_header("Selección de muestra", "Titulares (T) con cuotas GEC, agrupación por ruta y dispersión, más suplentes S1..Sn (relación 1:N).")
     cfg = configuration()
     country = cfg["pais_activo"]
     uploaded = st.file_uploader("Universo elegible Excel", type=["xlsx", "xlsm"], key="sel_input")
@@ -411,7 +505,7 @@ def page_selection() -> None:
 
 
 def page_routes() -> None:
-    st.header("Optimización de rutas")
+    page_header("Optimización de rutas", "Planifique las visitas y revise la distribución de puntos por territorio y día.")
     planning_tab, points_tab = st.tabs(["Nueva planificación", "Puntos en Excel"])
     with planning_tab:
         base = st.file_uploader("Base de puntos Excel", type=["xlsx", "xlsm"], key="route_base")
@@ -562,7 +656,7 @@ def polygon_file(upload, folder: Path) -> Path:
 
 
 def page_polygons() -> None:
-    st.header("Cruce y generador de polígonos")
+    page_header("Cruce y generador de polígonos", "Cruce puntos de venta con áreas geográficas y genere mallas de visitas.")
     crossing_tab, grid_tab = st.tabs(["Cruce y dibujo", "Generador de mallas"])
     with crossing_tab:
         points_file = st.file_uploader("Puntos Excel", type=["xlsx", "xlsm"], key="poly_points")
@@ -672,7 +766,7 @@ def column_picker(label: str, columns: list[str], hint: str, key: str) -> str:
 
 
 def page_distances() -> None:
-    st.header("Matriz de distancias")
+    page_header("Matriz de distancias", "Compare coordenadas, encuentre vecinos cercanos u ordene recorridos.")
     mode = st.radio(
         "Cálculo",
         ["Por columna puente", "Por cercanía", "Ruta ordenada"],
@@ -766,35 +860,43 @@ def page_distances() -> None:
 
 
 def main() -> None:
-    header()
     cfg = configuration()
     with st.sidebar:
-        st.image(str(ROOT / "Config" / "logo.png"), width=150)
-        st.markdown("### Planeación regional")
-        page = st.radio(
-            "Módulo",
-            [
-                "Configuración",
-                "Depuración de universo",
-                "Selección de muestra",
-                "Optimización de rutas",
-                "Cruce y generador de polígonos",
-                "Matriz de distancias",
-            ],
-            label_visibility="collapsed",
+        st.image(str(ROOT / "Config" / "logo.png"), width=190)
+        st.markdown(
+            '<div class="pt-brand-title">PLANNING TOOLS</div>'
+            '<div class="pt-brand-subtitle">Suite de planeación regional</div>'
+            '<div class="pt-sidebar-rule"></div>', unsafe_allow_html=True,
         )
-        st.divider()
-        st.caption(f"País activo: {cfg['pais_activo']}")
-        st.caption("Los archivos se procesan durante esta sesión y no se publican en GitHub.")
+        country = html.escape(str(cfg["pais_activo"]))
+        dep = cfg["paises"][cfg["pais_activo"]]["modulo_depuracion"]
+        universe = html.escape(str(dep.get("archivo_universo") or "—"))
+        incidents = html.escape(str(dep.get("archivo_incidencias") or "—"))
+        st.markdown(
+            f'<div class="pt-project"><strong>Proyecto activo · {country}</strong><br>'
+            f'Universo: {universe}<br>Incidencias: {incidents}</div>',
+            unsafe_allow_html=True,
+        )
+        names = [name for name, _, _ in NAV_MODULES]
+        icons = {name: (icon, available) for name, icon, available in NAV_MODULES}
+        page = st.radio(
+            "Módulo", names, label_visibility="collapsed",
+            format_func=lambda name: f"{icons[name][0]}  {name}" + ("  🔒" if not icons[name][1] else ""),
+        )
+        st.markdown(f'<div class="pt-sidebar-version">v{html.escape(VERSION)}</div>', unsafe_allow_html=True)
     pages = {
         "Configuración": page_configuration,
-        "Depuración de universo": page_depuracion,
+        "Depuración de Universo": page_depuracion,
         "Selección de muestra": page_selection,
         "Optimización de rutas": page_routes,
         "Cruce y generador de polígonos": page_polygons,
         "Matriz de distancias": page_distances,
     }
-    pages[page]()
+    if page in pages:
+        pages[page]()
+    else:
+        page_header(page, "Este módulo estará disponible en una próxima versión de Planning Tools.")
+        st.info("Próximamente")
 
 
 if __name__ == "__main__":

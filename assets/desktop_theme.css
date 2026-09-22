@@ -1,0 +1,220 @@
+/* Web companion to the unchanged CustomTkinter desktop interface. */
+:root {
+  --pt-blue: #0d5cab;
+  --pt-cyan: #33bdee;
+  --pt-ink: #1c293a;
+  --pt-muted: #69727d;
+  --pt-canvas: #f2f2f2;
+  --pt-border: #d5d8dc;
+}
+
+html, body, [data-testid="stApp"], [data-testid="stMain"] {
+  background: var(--pt-canvas);
+  color: var(--pt-ink);
+}
+
+[data-testid="stHeader"] {
+  background: transparent;
+}
+
+[data-testid="stToolbar"], footer {
+  display: none;
+}
+
+[data-testid="stMainBlockContainer"] {
+  max-width: none;
+  padding: 32px 40px 60px;
+}
+
+[data-testid="stSidebar"] {
+  background: var(--pt-blue);
+  width: 260px !important;
+  min-width: 260px !important;
+}
+
+[data-testid="stSidebarContent"],
+[data-testid="stSidebarUserContent"] {
+  background: var(--pt-blue);
+}
+
+[data-testid="stSidebarUserContent"] {
+  padding: 24px 20px 12px;
+}
+
+[data-testid="stSidebar"] [data-testid="stImage"] {
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin: 0 2px 12px;
+}
+
+[data-testid="stSidebar"] [data-testid="stImage"] img {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+}
+
+.pt-brand-title {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1.3;
+  margin: 0 4px 2px;
+}
+
+.pt-brand-subtitle {
+  color: #d5e8f7;
+  font-size: 12px;
+  margin: 0 4px 16px;
+}
+
+.pt-sidebar-rule {
+  height: 2px;
+  background: #4c8fcb;
+  margin: 4px 2px 16px;
+}
+
+.pt-project {
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 4px 18px;
+}
+
+.pt-project strong { font-weight: 700; }
+
+.pt-sidebar-version {
+  color: #d5e8f7;
+  font-size: 12px;
+  margin: 18px 4px 0;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadioOption"] {
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 4px 10px;
+  margin: 2px 0;
+  color: #fff;
+  background: transparent;
+  transition: background-color .15s ease;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover {
+  background: #2478be;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] {
+  background: #fff;
+  color: var(--pt-blue);
+}
+
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child {
+  display: none;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadioOption"] p {
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.pt-page-title {
+  color: var(--pt-blue);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+  margin: 0 0 5px;
+}
+
+.pt-page-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+
+.pt-card-title {
+  color: var(--pt-blue);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.pt-card-caption {
+  color: var(--pt-muted);
+  font-size: 12px;
+  margin: -8px 0 12px;
+}
+
+.pt-group-title {
+  color: var(--pt-blue);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.pt-field-label {
+  color: #333;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+[data-testid="stMain"] [data-testid="stVerticalBlock"] {
+  gap: .55rem;
+}
+
+[data-testid="stMain"] [data-testid="stVerticalBlockBorderWrapper"] > div {
+  padding: 16px 20px;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+  background: #fff;
+  border: 1px solid var(--pt-border) !important;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+[data-testid="stMain"] [data-testid="stWidgetLabel"] p,
+[data-testid="stMain"] label p {
+  color: #333;
+  font-size: 13px;
+}
+
+[data-testid="stMain"] input,
+[data-testid="stMain"] textarea,
+[data-testid="stMain"] [data-baseweb="select"] > div {
+  background: #f9f9f9;
+  border-color: #c9d0d7;
+  border-radius: 6px;
+}
+
+[data-testid="stMain"] button[kind="primary"] {
+  background: var(--pt-blue);
+  border: 1px solid var(--pt-blue);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+[data-testid="stMain"] button[kind="primary"]:hover {
+  background: var(--pt-cyan);
+  border-color: var(--pt-cyan);
+}
+
+[data-testid="stMain"] [data-testid="stTabs"] button[aria-selected="true"] {
+  color: var(--pt-blue);
+  border-color: var(--pt-blue);
+}
+
+[data-testid="stMain"] [data-testid="stMetricValue"] {
+  color: var(--pt-blue);
+}
+
+@media (max-width: 900px) {
+  [data-testid="stSidebar"] {
+    width: min(260px, 85vw) !important;
+    min-width: 0 !important;
+  }
+  [data-testid="stMainBlockContainer"] { padding: 24px 18px 42px; }
+}
