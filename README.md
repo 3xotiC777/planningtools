@@ -2,6 +2,10 @@
 
 ## Versión web
 
+La aplicación publicada está en **https://planningtools.onrender.com/**.
+El servicio de Render se despliega desde `3xotiC777/planningtools`; el mismo
+código se mantiene también en `miguelcabezas03/Planingtools`.
+
 La interfaz web está en `web_app.py`. Reutiliza los motores Python para
 depuración, selección, rutas, cruces geográficos, mallas y distancias.
 Cada usuario carga sus Excel y capas desde el navegador y descarga los
@@ -17,10 +21,11 @@ streamlit run web_app.py
 
 El repositorio incluye `Dockerfile` y `render.yaml` para crear un servicio web
 Python desde Render. El plan gratuito sirve para validar con archivos pequeños;
-los universos grandes necesitan más memoria y CPU. En Render, conectar este
-repositorio como Blueprint y comprobar `/_stcore/health` tras el despliegue.
-El servicio debe protegerse con los controles de acceso apropiados para los
-datos de la organización.
+los universos grandes necesitan más memoria y CPU. El servicio existente se
+actualiza automáticamente con cada commit a `main` del repositorio
+`3xotiC777/planningtools`; `/_stcore/health` permite comprobar su estado.
+La URL es pública y todavía no exige inicio de sesión: antes de cargar datos
+confidenciales, se deben habilitar controles de acceso apropiados.
 
 La versión de escritorio continúa disponible mediante
 `Ejecutar Planning Tools.bat`. Su instalación usa `requirements.txt`.
