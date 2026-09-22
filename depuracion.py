@@ -10,6 +10,7 @@ y devolver un objeto ResultadoDepuracion con los DataFrames y métricas.
 from __future__ import annotations
 
 import time
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -84,7 +85,12 @@ class DepuradorUniverso:
         # Cargar Polígonos GIS: 1) Frontera LATAM (NAME_0), 2) Delimitación Muestra
         base_app = self.entrada.parent
         carpeta_latam = base_app / "Poligonos Muestras" / "LATAM"
-        carpeta_delim = base_app / "Poligonos Muestras" / "DELIMITACION PAISES"
+        # El paquete local/ejecutable lleva solo las geometrías FP, nunca los
+        # atributos de clientes presentes en los GeoPackages originales.
+        raiz_codigo = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+        carpeta_delim = raiz_codigo / "Poligonos Muestras" / "DELIMITACION PAISES"
+        if not carpeta_delim.is_dir():
+            carpeta_delim = base_app / "Poligonos Muestras" / "DELIMITACION PAISES"
 
         poligono_latam_gdf = obtener_poligono_pais_latam(carpeta_latam, self.pais_activo)
         poligono_delim_gdf = obtener_poligono_delimitacion_muestra(carpeta_delim, self.pais_activo)

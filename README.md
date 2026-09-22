@@ -1,36 +1,24 @@
 # Planning Tools v1.2.0 — Suite de Planeación
 
-## Versión web
+## Uso operativo: escritorio Windows
 
-La aplicación publicada está en **https://planningtools.onrender.com/**.
-El servicio de Render se despliega desde `miguelcabezas03/Planingtools`; el
-mismo código se mantiene también en `3xotiC777/planningtools`.
+Planning Tools se distribuye como aplicación de escritorio. Cada persona abre
+`Ejecutar Planning Tools.bat` desde **su propia carpeta sincronizada**. El
+lanzador copia un único `Planning Tools.exe` a `%LOCALAPPDATA%\DichterNeira\PlanningTools`
+y lo ejecuta allí. No se conecta a SharePoint mediante API ni necesita copiar
+el entorno Python de otra persona. Si la sincronización falla después de una
+primera ejecución correcta, usa el último ejecutable local.
 
-La interfaz web está en `web_app.py`. Reutiliza los motores Python para
-depuración, selección, rutas, cruces geográficos, mallas y distancias.
-Cada usuario carga sus Excel y capas desde el navegador y descarga los
-resultados. Las bases operativas, los resultados y los logs siguen fuera de
-GitHub. Los archivos temporales de cada ejecución se eliminan al terminar.
+Los parámetros siguen en `Config/config.json` de la carpeta sincronizada, de
+modo que los cambios guardados allí están disponibles para el equipo. Las
+entradas y salidas también permanecen en esa carpeta. Los registros de error
+son privados de cada equipo, en `%LOCALAPPDATA%\DichterNeira\PlanningTools\Logs`.
+El instalador de Python se conserva para desarrollo, pero **los usuarios del
+ejecutable no deben correrlo**.
 
-Para ejecutarla en un servidor o localmente:
-
-```bash
-pip install -r requirements-web.txt
-streamlit run web_app.py
-```
-
-El repositorio incluye `Dockerfile` y `render.yaml` para crear un servicio web
-Python desde Render. El plan gratuito sirve para validar con archivos pequeños;
-los universos grandes necesitan más memoria y CPU. El servicio existente toma
-su código de `main` en `miguelcabezas03/Planingtools`, mediante la URL
-pública del repositorio: después de cada cambio se debe elegir **Manual
-Deploy → Deploy latest commit** en Render. `/_stcore/health` permite comprobar
-su estado.
-La URL es pública y todavía no exige inicio de sesión: antes de cargar datos
-confidenciales, se deben habilitar controles de acceso apropiados.
-
-La versión de escritorio continúa disponible mediante
-`Ejecutar Planning Tools.bat`. Su instalación usa `requirements.txt`.
+La antigua prueba web (`web_app.py`, Render) queda en el repositorio como
+prototipo, no como mecanismo de trabajo del equipo. Su URL pública no debe
+usarse para archivos confidenciales.
 
 Aplicación de escritorio para Windows con módulos de configuración,
 depuración de universo, selección de muestra, optimización de rutas y manejo
@@ -115,23 +103,22 @@ escritura continua para controlar el consumo de memoria.
 ## Estructura
 ```
 Planning Tools/
-├── Planning Tools.exe      <- (generado con PyInstaller)
-├── Instalar Planning Tools.bat
+├── Planning Tools.exe      <- ejecutable de escritorio compilado
 ├── Ejecutar Planning Tools.bat
-├── requirements.txt
+├── Iniciar Planning Tools.ps1
 ├── Entrada Depuracion/     <- universos e incidencias por país
 ├── Entrada Seleccion/      <- insumos opcionales para selección
 ├── Salida Depuracion/      <- universos elegibles y exclusiones
 ├── Salida Muestras/        <- titulares, suplentes y auditoría
-├── Logs/                   <- bitácora de cada ejecución (usuario, tiempos, errores)
+├── Poligonos Muestras/DELIMITACION PAISES/ <- FP por país (solo geometría dentro del exe)
 └── Config/                 <- configuración por país y logo corporativo
 ```
 
 ## Uso (usuario final)
-1. Ejecutar una sola vez `Instalar Planning Tools.bat`. Si Python no existe,
-   el instalador intenta agregar Python 3.12 mediante `winget`; después crea
-   un entorno privado `.venv` e instala todas las dependencias.
-2. Abrir la aplicación con `Ejecutar Planning Tools.bat`.
+1. Esperar a que `Ejecutar Planning Tools.bat`, `Iniciar Planning Tools.ps1` y
+   `Planning Tools.exe` aparezcan en la carpeta sincronizada del propio equipo.
+2. Abrir `Ejecutar Planning Tools.bat`. En el primer uso se copia y verifica
+   el ejecutable local. No hace falta instalar Python ni ejecutar el instalador.
 3. Elegir el país y revisar archivos, hojas y mapeo en **Configuración**.
 4. Ejecutar **Depuración de Universo**. El mapa muestra puntos elegibles y
    exclusiones REP, de incidencias y geográficas. En la revisión se dibuja el
@@ -187,16 +174,25 @@ Casos generados automáticamente sin borrar el código original:
 Los módulos futuros se agregan registrándolos en `REGISTRO_MODULOS`
 (`interfaz.py`) con su propio frame, sin tocar la arquitectura.
 
-## Compilar el ejecutable (una sola vez, en Windows)
+## Compilar el ejecutable (responsable técnico, en Windows)
 ```
-:: Después de ejecutar el instalador, en CMD dentro de la carpeta:
-.venv\Scripts\python.exe -m PyInstaller "Planning Tools.spec"
+python -m PyInstaller --noconfirm "Planning Tools.spec"
 ```
-El ejecutable queda en `dist\Planning Tools.exe`. Copiarlo a la carpeta
-`Planning Tools` junto a las carpetas `Entrada Depuracion/`, `Entrada Seleccion/`,
-`Poligonos Muestras/`, `Logs/` y `Config/` (la app crea las carpetas que falten
-en su primer arranque). Windows Defender puede marcar
-un falso positivo típico de PyInstaller: agregar excepción si ocurre.
+El ejecutable queda en `dist\Planning Tools.exe`. Solo después de validarlo,
+copiarlo junto al BAT y PS1 a la carpeta sincronizada. El EXE incluye los cuatro
+polígonos `NO ELEGIBLE FP` de Costa Rica, Nicaragua, Guatemala ABVO y Guatemala
+EMBOCEN, reducidos a **geometría y CRS**. Los GeoPackages originales contienen
+atributos de clientes y nunca deben subirse al repositorio. El mapa LATAM
+completo no se incluye en la distribución.
+
+Para regenerar los cuatro GeoPackages limpios desde una carpeta privada:
+
+```bash
+python tools/create_fp_polygons.py "RUTA_ORIGEN_PRIVADA" "Poligonos Muestras/DELIMITACION PAISES"
+```
+
+Si Windows bloquea el EXE en un equipo, revisar el mensaje de SmartScreen o
+Defender con TI; no se debe desactivar la protección de forma general.
 
 ## Etapa de rotación (nueva)
 Tras el cruce de incidencias, el pipeline aplica la elegibilidad por rotación

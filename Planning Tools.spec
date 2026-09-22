@@ -11,6 +11,7 @@ for paquete in ["customtkinter", "ortools"]:
 datas += [
     ("Config/logo.png", "Config"),
     ("Config/ampliar-pantalla.png", "Config"),
+    ("Poligonos Muestras/DELIMITACION PAISES/*.gpkg", "Poligonos Muestras/DELIMITACION PAISES"),
 ]
 hiddenimports += ["geopandas", "pyogrio", "shapely"]
 

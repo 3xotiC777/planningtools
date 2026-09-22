@@ -24,7 +24,7 @@ def directorio_base() -> Path:
     Carpeta raíz de la aplicación.
 
     - Ejecución desde caché local: usa PLANNING_TOOLS_BASE para conservar
-      entradas, salidas, configuración y logs en la carpeta compartida.
+      entradas, salidas y configuración en la carpeta sincronizada.
     - Ejecutable PyInstaller (--onefile): carpeta donde está el .exe
       (NO sys._MEIPASS, que es la carpeta temporal de descompresión).
     - Modo script: carpeta donde vive este archivo.
@@ -40,11 +40,16 @@ def directorio_base() -> Path:
 def ruta_recurso(ruta_relativa: str | Path) -> Path:
     """Resuelve un recurso tanto en modo fuente como dentro de PyInstaller."""
     relativa = Path(ruta_relativa)
+    carpeta_bundle = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+    embebida = carpeta_bundle / relativa
+    # Un icono de OneDrive puede existir como marcador sin estar descargado.
+    # Los recursos inmutables del EXE siempre se leen de su propio paquete.
+    if getattr(sys, "frozen", False) and embebida.is_file():
+        return embebida
     externa = directorio_base() / relativa
     if externa.exists():
         return externa
-    carpeta_bundle = Path(getattr(sys, "_MEIPASS", directorio_base()))
-    return carpeta_bundle / relativa
+    return embebida
 
 
 def rutas_app() -> dict[str, Path]:
@@ -64,7 +69,7 @@ def rutas_app() -> dict[str, Path]:
         "asignaciones": base.parent / "ASIGNACIONES",
         "poligonos_latam": base / "Poligonos Muestras" / "LATAM",
         "poligonos_delimitacion": base / "Poligonos Muestras" / "DELIMITACION PAISES",
-        "logs": base / "Logs",
+        "logs": Path(os.environ.get("PLANNING_TOOLS_LOG_DIR") or base / "Logs"),
         "config": base / "Config",
         "resumenes": base / "Resumenes",
     }

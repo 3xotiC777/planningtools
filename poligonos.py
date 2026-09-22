@@ -10,8 +10,8 @@ Responsabilidad única:
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
+import unicodedata
 import pandas as pd
 
 from logs import obtener_logger
@@ -29,6 +29,23 @@ MAPA_NAME_0 = {
     "Guatemala EMBOCEN": "Guatemala",
     "Republica Dominicana": "Dominican Republic",
     "República Dominicana": "Dominican Republic",
+}
+
+ARCHIVOS_FP_POR_PAIS = {
+    "Costa Rica": "ICEKO_CR.gpkg",
+    "Nicaragua": "ICEKO_NI.gpkg",
+    "Guatemala ABVO": "ICEKO_ABVO.gpkg",
+    "Guatemala EMBOCEN": "ICEKO_EMBOCEN.gpkg",
+}
+
+
+def _normalizar_pais(nombre: str) -> str:
+    sin_tildes = unicodedata.normalize("NFKD", nombre)
+    return " ".join("".join(c for c in sin_tildes if not unicodedata.combining(c)).casefold().split())
+
+
+_ARCHIVOS_FP_NORMALIZADOS = {
+    _normalizar_pais(pais): archivo for pais, archivo in ARCHIVOS_FP_POR_PAIS.items()
 }
 
 
@@ -61,50 +78,37 @@ def obtener_poligono_pais_latam(carpeta_latam: Path, nombre_pais: str):
 
 def obtener_poligono_delimitacion_muestra(carpeta_delim: Path, nombre_pais: str):
     """
-    Busca dinámicamente el archivo de delimitación en Poligonos Muestras/DELIMITACION PAISES
-    que corresponda al país activo y extrae sus polígonos.
+    Carga exclusivamente el polígono NO ELEGIBLE FP del país activo.
+
+    Para los países con FP configurado, un archivo ausente o dañado es un error:
+    continuar sin él clasificaría incorrectamente los puntos como elegibles.
     """
     log = obtener_logger()
-    if not carpeta_delim.exists():
-        log.warning("Carpeta de delimitación no existe: %s", carpeta_delim)
+    archivo = _ARCHIVOS_FP_NORMALIZADOS.get(_normalizar_pais(nombre_pais))
+    if archivo is None:
+        log.info("No hay filtro NO ELEGIBLE FP configurado para '%s'.", nombre_pais)
         return None
+    fpath = carpeta_delim / archivo
+    if not fpath.is_file():
+        raise FileNotFoundError(f"Falta el polígono NO ELEGIBLE FP de {nombre_pais}: {fpath}")
 
-    pais_lower = nombre_pais.lower()
-    archivos = [f for f in os.listdir(carpeta_delim) if f.endswith((".gpkg", ".shp"))]
+    try:
+        import pyogrio
+        import geopandas as gpd
 
-    for fname in archivos:
-        fn_lower = fname.lower()
-        if (
-            ("ni" in fn_lower and "nicaragua" in pais_lower)
-            or ("cr" in fn_lower and "costa rica" in pais_lower)
-            or ("ec" in fn_lower and "ecuador" in pais_lower)
-            or ("rd" in fn_lower and "dominicana" in pais_lower)
-            or ("abvo" in fn_lower and "abvo" in pais_lower)
-            or ("embocen" in fn_lower and "embocen" in pais_lower)
-            or ("hn" in fn_lower and "honduras" in pais_lower)
-            or ("es" in fn_lower and "salvador" in pais_lower)
-            or ("pa" in fn_lower and ("panama" in pais_lower or "panamá" in pais_lower))
-            or ("ch" in fn_lower and "chile" in pais_lower)
-        ):
-            fpath = carpeta_delim / fname
-            try:
-                import pyogrio
-                import geopandas as gpd
-                layers_info = pyogrio.list_layers(fpath)
-                polys = []
-                for l_name, l_type in layers_info:
-                    if "polygon" in l_type.lower():
-                        gdf = gpd.read_file(fpath, layer=l_name)
-                        polys.append(gdf)
-                if polys:
-                    res_gdf = pd.concat(polys, ignore_index=True) if len(polys) > 1 else polys[0]
-                    log.info("Cargado polígono de delimitación muestra desde '%s': %s elementos", fname, len(res_gdf))
-                    return res_gdf
-            except Exception as exc:
-                log.warning("Error al leer delimitación muestra '%s': %s", fname, exc)
-    
-    log.info("No hay archivo de delimitación muestra específico para '%s' en DELIMITACION PAISES (se omite filtro FP).", nombre_pais)
-    return None
+        polys = []
+        for nombre_capa, tipo in pyogrio.list_layers(fpath):
+            if "polygon" in tipo.lower():
+                polys.append(gpd.read_file(fpath, layer=nombre_capa))
+        if not polys:
+            raise ValueError("El archivo no contiene geometrías de polígono")
+        res_gdf = pd.concat(polys, ignore_index=True) if len(polys) > 1 else polys[0]
+        if res_gdf.empty or res_gdf.crs is None:
+            raise ValueError("El archivo está vacío o no tiene sistema de coordenadas")
+        log.info("Polígono NO ELEGIBLE FP de %s: %s geometrías", nombre_pais, len(res_gdf))
+        return res_gdf
+    except Exception as exc:
+        raise ValueError(f"No se pudo leer el polígono NO ELEGIBLE FP de {nombre_pais}: {fpath}") from exc
 
 
 def validar_coordenadas_en_poligono(

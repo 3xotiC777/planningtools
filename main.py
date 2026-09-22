@@ -44,7 +44,7 @@ def main() -> int:
             messagebox.showerror(
                 NOMBRE_APP,
                 f"No fue posible iniciar la aplicación.\n\n{exc}\n\n"
-                "Revise la carpeta 'Logs' para más detalle.")
+                "Revise el registro local en AppData\\Local\\DichterNeira\\PlanningTools\\Logs para más detalle.")
         except Exception:
             print(detalle, file=sys.stderr)
         return 1
