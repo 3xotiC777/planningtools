@@ -21,8 +21,13 @@ carpeta sincronizada. En **Configuración → Archivos Principales** se cargan
 Universo, Incidencias y Fijos por país; Depuración reutiliza esos Excel y
 Selección puede reutilizar el resultado de Depuración. Los Excel permanecen
 solo en la sesión web (memoria temporal del servidor), no se guardan en GitHub ni en el JSON del
-servidor. Los únicos polígonos incluidos en el despliegue son los cuatro
-`NO ELEGIBLE FP` exclusivos de Costa Rica, Nicaragua y Guatemala ABVO/EMBOCEN.
+servidor. En Depuración también se puede subir un ZIP LATAM con SHP/SHX/DBF
+para filtrar la frontera del país y un GeoPackage de delimitación de muestra
+`NO ELEGIBLE FP` exclusivo del país activo. El ZIP LATAM se reutiliza entre
+países durante la sesión; el GeoPackage de un país no se aplica a otro.
+Los únicos polígonos incluidos en el despliegue son los cuatro `NO ELEGIBLE FP`
+de Costa Rica, Nicaragua y Guatemala ABVO/EMBOCEN. La barra lateral azul se
+abre de forma predeterminada y muestra un control «Abrir menú» si se cierra.
 
 **Guardar Configuración en el servidor** comparte los parámetros con nuevas
 sesiones, pero usa almacenamiento temporal del servicio gratuito: pueden

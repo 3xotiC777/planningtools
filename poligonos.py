@@ -10,7 +10,7 @@ Responsabilidad única:
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import unicodedata
 import pandas as pd
 
@@ -76,7 +76,9 @@ def obtener_poligono_pais_latam(carpeta_latam: Path, nombre_pais: str):
         return None
 
 
-def obtener_poligono_delimitacion_muestra(carpeta_delim: Path, nombre_pais: str):
+def obtener_poligono_delimitacion_muestra(
+    carpeta_delim: Path, nombre_pais: str, archivo_personalizado: str | None = None,
+):
     """
     Carga exclusivamente el polígono NO ELEGIBLE FP del país activo.
 
@@ -84,7 +86,12 @@ def obtener_poligono_delimitacion_muestra(carpeta_delim: Path, nombre_pais: str)
     continuar sin él clasificaría incorrectamente los puntos como elegibles.
     """
     log = obtener_logger()
-    archivo = _ARCHIVOS_FP_NORMALIZADOS.get(_normalizar_pais(nombre_pais))
+    if archivo_personalizado:
+        archivo = PureWindowsPath(archivo_personalizado).name
+        if archivo != archivo_personalizado or Path(archivo).suffix.lower() != ".gpkg":
+            raise ValueError("El nombre del GeoPackage de delimitación no es válido.")
+    else:
+        archivo = _ARCHIVOS_FP_NORMALIZADOS.get(_normalizar_pais(nombre_pais))
     if archivo is None:
         log.info("No hay filtro NO ELEGIBLE FP configurado para '%s'.", nombre_pais)
         return None

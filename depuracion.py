@@ -88,12 +88,15 @@ class DepuradorUniverso:
         # El paquete local/ejecutable lleva solo las geometrías FP, nunca los
         # atributos de clientes presentes en los GeoPackages originales.
         raiz_codigo = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+        archivo_muestra = cfg.get("archivo_poligono_muestra")
         carpeta_delim = raiz_codigo / "Poligonos Muestras" / "DELIMITACION PAISES"
-        if not carpeta_delim.is_dir():
+        if archivo_muestra or not carpeta_delim.is_dir():
             carpeta_delim = base_app / "Poligonos Muestras" / "DELIMITACION PAISES"
 
         poligono_latam_gdf = obtener_poligono_pais_latam(carpeta_latam, self.pais_activo)
-        poligono_delim_gdf = obtener_poligono_delimitacion_muestra(carpeta_delim, self.pais_activo)
+        poligono_delim_gdf = obtener_poligono_delimitacion_muestra(
+            carpeta_delim, self.pais_activo, archivo_muestra,
+        )
         res.contornos_pais = extraer_contornos_mapa(poligono_latam_gdf)
         res.contornos_muestra = extraer_contornos_mapa(poligono_delim_gdf)
 

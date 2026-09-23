@@ -32,6 +32,39 @@ html, body, [data-testid="stApp"], [data-testid="stMain"] {
   min-width: 260px !important;
 }
 
+/* Streamlit conserva este control cuando el menú se contrae. Hacerlo visible
+   evita que se pierda la navegación entre módulos. */
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"] {
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  z-index: 100000 !important;
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px !important;
+  border-radius: 8px;
+  background: var(--pt-blue) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(13, 92, 171, .24);
+}
+
+[data-testid="collapsedControl"]::after,
+[data-testid="stSidebarCollapsedControl"]::after {
+  content: "Abrir menú";
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+[data-testid="collapsedControl"] button,
+[data-testid="stSidebarCollapsedControl"] button {
+  color: #fff !important;
+}
+
 [data-testid="stSidebarContent"],
 [data-testid="stSidebarUserContent"] {
   background: var(--pt-blue);

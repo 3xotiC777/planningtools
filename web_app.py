@@ -42,7 +42,7 @@ from optimizacion_rutas import (
     mover_puntos,
     planificar_archivos,
 )
-from poligonos import ARCHIVOS_FP_POR_PAIS
+from poligonos import ARCHIVOS_FP_POR_PAIS, obtener_poligono_pais_latam
 from seleccion import SelectorMuestra
 from reportes import _generar_pdf
 from server_config_store import load_configuration, save_configuration
@@ -54,13 +54,14 @@ from web_workflow import (
     workbook_record,
     write_workbook,
 )
+from web_polygons import polygon_record, write_latam_zip, write_sample_gpkg
 
 
 ROOT = Path(__file__).resolve().parent
 APP_TITLE = "Planning Tools"
 MAX_MAP_POINTS = 2500
 
-st.set_page_config(page_title=APP_TITLE, page_icon="🗺️", layout="wide")
+st.set_page_config(page_title=APP_TITLE, page_icon="🗺️", layout="wide", initial_sidebar_state="expanded")
 st.markdown(
     f"<style>{(ROOT / 'assets' / 'desktop_theme.css').read_text(encoding='utf-8')}</style>",
     unsafe_allow_html=True,
@@ -126,6 +127,33 @@ def change_country() -> None:
 
 def country_workbooks(country: str) -> dict:
     return st.session_state.setdefault("country_workbooks", {}).setdefault(country, {})
+
+
+def polygon_upload(country: str, kind: str, label: str) -> dict | None:
+    """Mantiene LATAM global y el GeoPackage separado por país en la sesión."""
+    bucket = st.session_state.setdefault("polygon_uploads", {}).setdefault(country, {})
+    version_key = f"poly_version_{country}_{kind}"
+    widget_key = f"dep_poly_{country}_{kind}_{st.session_state.get(version_key, 0)}"
+    uploaded = st.file_uploader(label, type=["zip" if kind == "latam" else "gpkg"], key=widget_key)
+    if uploaded is not None:
+        try:
+            candidate = polygon_record(uploaded.name, uploaded.getvalue(), kind)
+            if bucket.get(kind, {}).get("fingerprint") != candidate["fingerprint"]:
+                bucket[kind] = candidate
+                clear_workflow_results()
+                st.rerun()
+        except ValueError as exc:
+            bucket.pop(kind, None)
+            st.error(str(exc))
+    record = bucket.get(kind)
+    if record:
+        st.caption(f"Cargado: {record['name']}")
+        if st.button(f"Quitar {label.lower()}", key=f"remove_poly_{country}_{kind}"):
+            bucket.pop(kind, None)
+            st.session_state[version_key] = st.session_state.get(version_key, 0) + 1
+            clear_workflow_results()
+            st.rerun()
+    return record
 
 
 def config_workbook(country: str, role: str, label: str, expected: str = "") -> dict | None:
@@ -503,28 +531,44 @@ def page_depuracion() -> None:
         st.write(f"Universo: {universe['name'] if universe else 'Pendiente'}")
         st.write(f"Incidencias: {incidents['name'] if incidents else 'Pendiente'}")
         st.write(f"Fijos: {fixed['name'] if fixed else 'No cargado (opcional)'}")
+    with st.container(border=True):
+        card_title("Polígonos para depuración", "LATAM sirve de frontera; la delimitación de muestra aplica solo al país activo.")
+        latam = polygon_upload("LATAM", "latam", "Polígonos LATAM (ZIP con SHP, SHX y DBF)")
+        sample = polygon_upload(country, "sample", f"Delimitación de muestra / NO ELEGIBLE FP de {country} (GPKG)")
         fp_file = ARCHIVOS_FP_POR_PAIS.get(country)
-        fp_ready = not fp_file or (ROOT / "Poligonos Muestras" / "DELIMITACION PAISES" / fp_file).is_file()
-        if fp_file:
-            st.write(f"NO ELEGIBLE FP ({country}): {'cargado' if fp_ready else 'faltante'}")
+        fp_ready = bool(sample) or not fp_file or (ROOT / "Poligonos Muestras" / "DELIMITACION PAISES" / fp_file).is_file()
+        if sample:
+            st.info(f"Se usará el GeoPackage cargado para {country} en lugar del polígono incluido.")
+        elif fp_file:
+            st.write(f"NO ELEGIBLE FP ({country}): {'incluido en la aplicación' if fp_ready else 'faltante'}")
         else:
-            st.write("NO ELEGIBLE FP: no configurado para este país")
+            st.write("NO ELEGIBLE FP: no hay polígono incluido para este país; puede cargar uno arriba.")
     if not fp_ready:
         st.error("Falta el polígono FP del país en el servidor. No se ejecutará una depuración incompleta.")
     if st.button("Ejecutar depuración", type="primary", disabled=not (universe and incidents and fp_ready)):
         with tempfile.TemporaryDirectory(prefix="planning-dep-") as temp:
             base = Path(temp)
             input_dir = base / "Entrada Depuracion"
-            dep_cfg = copy.deepcopy(cfg["paises"][country]["modulo_depuracion"])
-            u_path = write_workbook(universe, input_dir)
-            i_path = write_workbook(incidents, input_dir)
-            dep_cfg["archivo_universo"] = u_path.name
-            dep_cfg["archivo_incidencias"] = i_path.name
-            if fixed:
-                f_path = write_workbook(fixed, base / "Entrada")
-                dep_cfg.setdefault("rotacion", {})["archivo_fijos"] = f_path.name
             bar = st.progress(0, text="Preparando archivos...")
             try:
+                dep_cfg = copy.deepcopy(cfg["paises"][country]["modulo_depuracion"])
+                u_path = write_workbook(universe, input_dir)
+                i_path = write_workbook(incidents, input_dir)
+                dep_cfg["archivo_universo"] = u_path.name
+                dep_cfg["archivo_incidencias"] = i_path.name
+                if fixed:
+                    f_path = write_workbook(fixed, base / "Entrada")
+                    dep_cfg.setdefault("rotacion", {})["archivo_fijos"] = f_path.name
+                if latam:
+                    latam_dir = base / "Poligonos Muestras" / "LATAM"
+                    write_latam_zip(latam, latam_dir)
+                    if obtener_poligono_pais_latam(latam_dir, country) is None:
+                        raise ValueError(f"El ZIP LATAM no contiene un polígono legible para {country} con la columna NAME_0.")
+                if sample:
+                    sample_path = write_sample_gpkg(
+                        sample, base / "Poligonos Muestras" / "DELIMITACION PAISES",
+                    )
+                    dep_cfg["archivo_poligono_muestra"] = sample_path.name
                 result = DepuradorUniverso(input_dir, dep_cfg, cfg).ejecutar(progress_callback(bar))
                 files = {
                     "Universo_Elegible.xlsx": spreadsheet_bytes({"Universo": result.elegibles}),
