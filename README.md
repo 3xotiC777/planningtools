@@ -16,9 +16,19 @@ son privados de cada equipo, en `%LOCALAPPDATA%\DichterNeira\PlanningTools\Logs`
 El instalador de Python se conserva para desarrollo, pero **los usuarios del
 ejecutable no deben correrlo**.
 
-La antigua prueba web (`web_app.py`, Render) queda en el repositorio como
-prototipo, no como mecanismo de trabajo del equipo. Su URL pública no debe
-usarse para archivos confidenciales.
+La web de Render es una alternativa al ejecutable, no una conexión a la
+carpeta sincronizada. En **Configuración → Archivos Principales** se cargan
+Universo, Incidencias y Fijos por país; Depuración reutiliza esos Excel y
+Selección puede reutilizar el resultado de Depuración. Los Excel permanecen
+solo en la sesión web (memoria temporal del servidor), no se guardan en GitHub ni en el JSON del
+servidor. Los únicos polígonos incluidos en el despliegue son los cuatro
+`NO ELEGIBLE FP` exclusivos de Costa Rica, Nicaragua y Guatemala ABVO/EMBOCEN.
+
+**Guardar Configuración en el servidor** comparte los parámetros con nuevas
+sesiones, pero usa almacenamiento temporal del servicio gratuito: pueden
+perderse al reiniciar o volver a desplegar Render. La web es pública y no
+tiene autenticación; cualquier visitante puede editar la configuración. No
+se deben cargar archivos confidenciales allí hasta añadir control de acceso.
 
 Aplicación de escritorio para Windows con módulos de configuración,
 depuración de universo, selección de muestra, optimización de rutas y manejo

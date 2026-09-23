@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import html
 import io
 import json
-import os
 import tempfile
 import zipfile
 from pathlib import Path
@@ -42,9 +42,18 @@ from optimizacion_rutas import (
     mover_puntos,
     planificar_archivos,
 )
+from poligonos import ARCHIVOS_FP_POR_PAIS
 from seleccion import SelectorMuestra
 from reportes import _generar_pdf
+from server_config_store import load_configuration, save_configuration
 from utilidades import VERSION
+from web_workflow import (
+    parse_priority_codes,
+    synchronize_country_parameters,
+    workbook_columns,
+    workbook_record,
+    write_workbook,
+)
 
 
 ROOT = Path(__file__).resolve().parent
@@ -70,17 +79,98 @@ NAV_MODULES = (
     ("Exportación de reportes", "📦", False),
 )
 
+WORKFLOW_RESULT_KEYS = (
+    "dep_result", "dep_result_country", "dep_zip", "sel_review", "sel_source_id",
+    "sel_result", "sel_result_source_id", "sel_zip",
+)
+
 
 def configuration() -> dict:
     if "config" not in st.session_state:
-        st.session_state.config = json.loads(
-            (ROOT / "Config" / "config.json").read_text(encoding="utf-8")
-        )
+        config, revision = load_configuration(ROOT / "Config" / "config.json")
+        st.session_state.config = config
+        st.session_state.config_server_revision = revision
     return st.session_state.config
 
 
+def clear_workflow_results() -> None:
+    for key in WORKFLOW_RESULT_KEYS:
+        st.session_state.pop(key, None)
+
+
+def reload_configuration() -> None:
+    config, revision = load_configuration(ROOT / "Config" / "config.json")
+    for key in list(st.session_state):
+        if key.startswith(("cfg_", "sheet_", "config_json_", "sel_input_", "config_upload_")):
+            st.session_state.pop(key, None)
+    clear_workflow_results()
+    st.session_state.pop("country_select", None)
+    st.session_state.pop("country_workbooks", None)
+    st.session_state.pop("selection_workbooks", None)
+    st.session_state.config = config
+    st.session_state.config_server_revision = revision
+
+
+def country_config_signature(country: str) -> str:
+    payload = json.dumps(configuration()["paises"][country], ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def change_country() -> None:
-    configuration()["pais_activo"] = st.session_state.country_select
+    cfg = configuration()
+    new_country = st.session_state.country_select
+    if cfg["pais_activo"] != new_country:
+        clear_workflow_results()
+    cfg["pais_activo"] = new_country
+
+
+def country_workbooks(country: str) -> dict:
+    return st.session_state.setdefault("country_workbooks", {}).setdefault(country, {})
+
+
+def config_workbook(country: str, role: str, label: str, expected: str = "") -> dict | None:
+    """Sube una vez por país y conserva el Excel al navegar entre módulos."""
+    bucket = country_workbooks(country)
+    version_key = f"upload_version_{country}_{role}"
+    widget_key = f"config_upload_{country}_{role}_{st.session_state.get(version_key, 0)}"
+    uploaded = st.file_uploader(label, type=["xlsx", "xlsm"], key=widget_key)
+    if uploaded is not None:
+        data = uploaded.getvalue()
+        previous = bucket.get(role)
+        if previous is None or previous["name"] != uploaded.name or previous["content"] != data:
+            try:
+                bucket[role] = workbook_record(uploaded.name, data)
+                clear_workflow_results()
+                st.rerun()
+            except ValueError as exc:
+                st.error(str(exc))
+    record = bucket.get(role)
+    if record is None:
+        st.caption(f"Configurado: {expected or 'ninguno'}. Suba el archivo para esta sesión.")
+    else:
+        st.caption(f"Listo para {country}: {record['name']} · {len(record['sheets'])} hoja(s)")
+        if st.button(f"Quitar {label.lower()}", key=f"remove_{country}_{role}"):
+            bucket.pop(role, None)
+            st.session_state[version_key] = st.session_state.get(version_key, 0) + 1
+            clear_workflow_results()
+            st.rerun()
+    return record
+
+
+def config_sheet(dep: dict, field: str, label: str, country: str, role: str, record: dict | None) -> None:
+    if record is None:
+        text_parameter(dep, field, label, country, "dep")
+        return
+    options = list(record["sheets"])
+    configured = dep.get(field, "")
+    if configured and configured not in options:
+        st.warning(f"La hoja configurada '{configured}' no existe en {record['name']}; seleccione la correcta.")
+    selected = parameter_row(label).selectbox(
+        label, options, index=options.index(configured) if configured in options else 0,
+        key=f"sheet_{country}_{role}_{record['fingerprint'][:12]}",
+        label_visibility="collapsed",
+    )
+    dep[field] = selected
 
 
 def save_upload(upload, folder: Path) -> Path:
@@ -230,6 +320,17 @@ def int_parameter(data: dict, field: str, label: str, country: str, section: str
     ))
 
 
+def quota_parameter(data: dict, field: str, country: str, section: str) -> None:
+    value = data[field]
+    if isinstance(value, float) and 0 < value < 1:
+        data[field] = float(st.number_input(
+            field, min_value=0.0, max_value=1.0, value=value, step=0.0001,
+            format="%.4f", key=f"cfg_{section}_{field}_{country}",
+        ))
+    else:
+        int_parameter(data, field, field, country, section, compact=False)
+
+
 def page_configuration() -> None:
     cfg = configuration()
     heading, selector = st.columns([3, 1], vertical_alignment="center")
@@ -244,14 +345,23 @@ def page_configuration() -> None:
     cfg["pais_activo"] = country
     dep = cfg["paises"][country]["modulo_depuracion"]
     sel = cfg["paises"][country]["modulo_seleccion"]
+    initial_signature = country_config_signature(country)
 
     left, right = st.columns(2, gap="medium")
     with left, st.container(border=True):
         card_title("Archivos Principales")
-        text_parameter(dep, "archivo_universo", "Universo", country, "dep")
-        text_parameter(dep, "hoja_universo", "Hoja Universo", country, "dep")
-        text_parameter(dep, "archivo_incidencias", "Incidencias", country, "dep")
-        text_parameter(dep, "hoja_incidencias", "Hoja Incidencias", country, "dep")
+        universe = config_workbook(country, "universe", "Universo Excel", dep.get("archivo_universo", ""))
+        if universe:
+            dep["archivo_universo"] = universe["name"]
+        config_sheet(dep, "hoja_universo", "Hoja Universo", country, "universe", universe)
+        incidents = config_workbook(country, "incidents", "Incidencias Excel", dep.get("archivo_incidencias", ""))
+        if incidents:
+            dep["archivo_incidencias"] = incidents["name"]
+        config_sheet(dep, "hoja_incidencias", "Hoja Incidencias", country, "incidents", incidents)
+        fixed = config_workbook(country, "fixed", "Fijos Excel (opcional)", dep.get("rotacion", {}).get("archivo_fijos", ""))
+        if fixed:
+            dep.setdefault("rotacion", {})["archivo_fijos"] = fixed["name"]
+        st.caption("Los Excel se mantienen en la memoria temporal de esta sesión web; no se guardan como archivos permanentes.")
     with right, st.container(border=True):
         card_title("Puntos de Rutas y Cluster")
         int_parameter(sel, "min_pdv_ruta", "Min de Ruta", country, "sel")
@@ -281,17 +391,21 @@ def page_configuration() -> None:
             ("valor_fijo", "Valor del Fijo"),
         ):
             text_parameter(sel, field, label, country, "sel")
-        for field, label in (("columna_lat", "Latitud de selección"), ("columna_lon", "Longitud de selección")):
-            text_parameter(sel, field, label, country, "sel")
+        st.caption("Latitud y longitud se comparten automáticamente con Selección.")
     with right, st.container(border=True):
         card_title("Muestra Selección", "Cuotas de selección y límites de repetitividad.")
-        int_parameter(sel, "tamano_muestra", "Tamaño de muestra", country, "sel", minimum=1, default=1)
+        gec_values = sel.get("cuotas_gec", {}).values()
+        fractional_gec = any(isinstance(value, float) and 0 < value < 1 for value in gec_values)
+        if fractional_gec:
+            int_parameter(sel, "tamano_muestra", "Tamaño de muestra", country, "sel", minimum=1, default=1)
+        else:
+            st.caption("Tamaño de muestra: suma automática de las cuotas GEC.")
         int_parameter(sel, "ratio_suplentes", "Suplentes por titular", country, "sel")
         sample_left, sample_right = st.columns(2, gap="small")
         with sample_left:
             group_title("1. GEC")
             for name in ("ORO", "PLATA", "BRONCE"):
-                int_parameter(sel.setdefault("cuotas_gec", {}), name, name.title(), country, "gec", compact=False)
+                quota_parameter(sel.setdefault("cuotas_gec", {}), name, country, "gec")
             group_title("3. Canal")
             channel_quotas = sel.setdefault("cuotas_canal", {})
             for name, alternatives in (
@@ -307,9 +421,40 @@ def page_configuration() -> None:
             group_title("4. REP")
             repeat = dep.setdefault("rotacion", {}).setdefault("cupos_por_gec", {})
             for name in ("ORO", "PLATA", "BRONCE"):
-                int_parameter(repeat, name, f"{name.title()} REP", country, "rep", compact=False)
+                int_parameter(repeat, name, f"{name.title()} REP", country, "rep", minimum=1, default=1, compact=False)
         group_title("5. PXR")
-        int_parameter(dep, "pxr_minimo", "Mínimo elegible", country, "dep")
+        int_parameter(dep, "pxr_minimo", "Mínimo elegible", country, "dep", minimum=1, default=1)
+
+    with st.expander("Cuotas y parámetros específicos del país"):
+        for field, title in (
+            ("cuotas_region", "Región"), ("cuotas_subcanal", "Subcanal"),
+            ("cuotas_agencia", "Agencia"), ("cuotas_agencia_canal", "Agencia y canal"),
+            ("cuotas_fijo_canal", "Fijo por canal"),
+        ):
+            quotas = sel.get(field)
+            if isinstance(quotas, dict) and quotas:
+                group_title(title)
+                columns = st.columns(3)
+                for index, name in enumerate(quotas):
+                    with columns[index % 3]:
+                        quota_parameter(quotas, name, country, field)
+        if "codigos_prioritarios" in sel:
+            sel["codigos_prioritarios"] = parse_priority_codes(st.text_input(
+                "Códigos prioritarios (separados por coma)",
+                value=", ".join(map(str, sel["codigos_prioritarios"])),
+                key=f"cfg_priority_{country}",
+            ))
+        for field, label in (("columna_region", "Columna región"), ("columna_subcanal", "Columna subcanal"),
+                             ("columna_agencia", "Columna agencia"), ("columna_peso", "Columna peso")):
+            if field in sel:
+                text_parameter(sel, field, label, country, "sel")
+
+    try:
+        synchronize_country_parameters(cfg["paises"][country])
+        if country_config_signature(country) != initial_signature:
+            clear_workflow_results()
+    except (ValueError, TypeError) as exc:
+        show_error(exc)
 
     with st.expander("Cuotas y parámetros específicos del país · configuración completa"):
         raw = st.text_area(
@@ -323,19 +468,27 @@ def page_configuration() -> None:
                 parsed = json.loads(raw)
                 if "paises" not in parsed or "pais_activo" not in parsed:
                     raise ValueError("Faltan las claves paises o pais_activo.")
+                reload_configuration()
                 st.session_state.config = parsed
-                st.session_state.pop("country_select", None)
                 st.rerun()
             except (ValueError, TypeError) as exc:
                 show_error(exc)
-    st.caption("Los cambios de la página se mantienen en esta sesión. Descargue el JSON para conservarlos fuera del navegador.")
-    st.download_button(
-        "Guardar Configuración (descargar JSON)",
-        json.dumps(configuration(), ensure_ascii=False, indent=2).encode("utf-8"),
-        "config.json",
-        "application/json",
-        type="primary",
-    )
+    st.warning("Guardado temporal en el servidor gratuito: se comparte con otros usuarios, pero se pierde al reiniciar o desplegar Render. Cualquier visitante de esta página puede modificarlo.")
+    save_col, reload_col = st.columns(2)
+    if save_col.button("Guardar Configuración en el servidor", type="primary"):
+        try:
+            st.session_state.config_server_revision = save_configuration(
+                cfg, st.session_state.config_server_revision, ROOT / "Config" / "config.json",
+            )
+            st.success("Configuración guardada temporalmente para todos los usuarios.")
+        except (OSError, ValueError, TypeError) as exc:
+            show_error(exc)
+    if reload_col.button("Recargar configuración del servidor"):
+        try:
+            reload_configuration()
+            st.rerun()
+        except (OSError, ValueError, TypeError) as exc:
+            show_error(exc)
 
 
 def page_depuracion() -> None:
@@ -343,40 +496,33 @@ def page_depuracion() -> None:
     cfg = configuration()
     country = cfg["pais_activo"]
     st.caption(f"País: {country}")
-    universe = st.file_uploader("Universo Excel", type=["xlsx", "xlsm"], key="dep_universe")
-    incidents = st.file_uploader("Incidencias Excel", type=["xlsx", "xlsm"], key="dep_incidents")
-    fixed = st.file_uploader("Fijos Excel (opcional)", type=["xlsx", "xlsm"], key="dep_fixed")
-    country_polygons = st.file_uploader(
-        "Polígono LATAM en ZIP con archivos SHP, SHX y DBF (opcional)",
-        type=["zip"], key="dep_latam",
-    )
-    sample_polygons = st.file_uploader(
-        "Delimitación de muestra en GeoPackage (opcional)",
-        type=["gpkg"], key="dep_sample",
-    )
-    if st.button("Ejecutar depuración", type="primary", disabled=not (universe and incidents)):
+    records = country_workbooks(country)
+    universe, incidents, fixed = (records.get(role) for role in ("universe", "incidents", "fixed"))
+    with st.container(border=True):
+        card_title("Archivos Principales", "Cárguelos en Configuración para el país activo.")
+        st.write(f"Universo: {universe['name'] if universe else 'Pendiente'}")
+        st.write(f"Incidencias: {incidents['name'] if incidents else 'Pendiente'}")
+        st.write(f"Fijos: {fixed['name'] if fixed else 'No cargado (opcional)'}")
+        fp_file = ARCHIVOS_FP_POR_PAIS.get(country)
+        fp_ready = not fp_file or (ROOT / "Poligonos Muestras" / "DELIMITACION PAISES" / fp_file).is_file()
+        if fp_file:
+            st.write(f"NO ELEGIBLE FP ({country}): {'cargado' if fp_ready else 'faltante'}")
+        else:
+            st.write("NO ELEGIBLE FP: no configurado para este país")
+    if not fp_ready:
+        st.error("Falta el polígono FP del país en el servidor. No se ejecutará una depuración incompleta.")
+    if st.button("Ejecutar depuración", type="primary", disabled=not (universe and incidents and fp_ready)):
         with tempfile.TemporaryDirectory(prefix="planning-dep-") as temp:
             base = Path(temp)
             input_dir = base / "Entrada Depuracion"
             dep_cfg = copy.deepcopy(cfg["paises"][country]["modulo_depuracion"])
-            u_path = save_upload(universe, input_dir)
-            i_path = save_upload(incidents, input_dir)
+            u_path = write_workbook(universe, input_dir)
+            i_path = write_workbook(incidents, input_dir)
             dep_cfg["archivo_universo"] = u_path.name
             dep_cfg["archivo_incidencias"] = i_path.name
             if fixed:
-                f_path = save_upload(fixed, base / "Entrada")
+                f_path = write_workbook(fixed, base / "Entrada")
                 dep_cfg.setdefault("rotacion", {})["archivo_fijos"] = f_path.name
-            if country_polygons:
-                with zipfile.ZipFile(io.BytesIO(country_polygons.getvalue())) as archive:
-                    allowed = {".shp", ".shx", ".dbf", ".prj", ".cpg"}
-                    target = base / "Poligonos Muestras" / "LATAM"
-                    target.mkdir(parents=True, exist_ok=True)
-                    for item in archive.infolist():
-                        if Path(item.filename).suffix.lower() in allowed and not item.is_dir():
-                            extension = Path(item.filename).suffix.lower()
-                            (target / f"LATAM DN{extension}").write_bytes(archive.read(item))
-            if sample_polygons:
-                save_upload(sample_polygons, base / "Poligonos Muestras" / "DELIMITACION PAISES")
             bar = st.progress(0, text="Preparando archivos...")
             try:
                 result = DepuradorUniverso(input_dir, dep_cfg, cfg).ejecutar(progress_callback(bar))
@@ -387,12 +533,14 @@ def page_depuracion() -> None:
                 }
                 if not result.sin_cupo.empty:
                     files["Tiendas_Sin_Cupo.xlsx"] = spreadsheet_bytes({"Sin cupo": result.sin_cupo})
+                clear_workflow_results()
                 st.session_state.dep_result = result
+                st.session_state.dep_result_country = country
                 st.session_state.dep_zip = zip_outputs(files)
                 st.success(f"Depuración terminada: {len(result.elegibles):,} registros en el universo resultante.")
             except Exception as exc:
                 show_error(exc)
-    result = st.session_state.get("dep_result")
+    result = st.session_state.get("dep_result") if st.session_state.get("dep_result_country") == country else None
     if result is not None:
         st.dataframe(result.elegibles.head(500), width="stretch")
         country_cfg = cfg["paises"][country]["modulo_depuracion"]
@@ -406,30 +554,47 @@ def page_selection() -> None:
     page_header("Selección de muestra", "Titulares (T) con cuotas GEC, agrupación por ruta y dispersión, más suplentes S1..Sn (relación 1:N).")
     cfg = configuration()
     country = cfg["pais_activo"]
-    uploaded = st.file_uploader("Universo elegible Excel", type=["xlsx", "xlsm"], key="sel_input")
-    use_previous = st.session_state.get("dep_result") is not None
+    uploaded = st.file_uploader("Universo elegible Excel (alternativa a Depuración)", type=["xlsx", "xlsm"], key=f"sel_input_{country}")
+    saved_inputs = st.session_state.setdefault("selection_workbooks", {})
+    if uploaded is not None:
+        try:
+            candidate = workbook_record(uploaded.name, uploaded.getvalue())
+            if saved_inputs.get(country, {}).get("fingerprint") != candidate["fingerprint"]:
+                saved_inputs[country] = candidate
+                st.session_state.pop("sel_review", None)
+                st.session_state.pop("sel_result", None)
+                st.session_state.pop("sel_zip", None)
+        except ValueError as exc:
+            show_error(exc)
+    input_record = saved_inputs.get(country)
+    if input_record:
+        st.caption(f"Archivo de selección en esta sesión: {input_record['name']}")
+    use_previous = (st.session_state.get("dep_result") is not None and
+                    st.session_state.get("dep_result_country") == country)
     if use_previous:
         st.info("También puedes usar el universo generado en Depuración durante esta sesión.")
     source = st.radio(
         "Origen",
         ["Archivo cargado", "Resultado de depuración"] if use_previous else ["Archivo cargado"],
-        horizontal=True,
+        horizontal=True, key=f"sel_source_{country}",
     )
     source_id = (
         country, source,
         id(st.session_state.dep_result) if source == "Resultado de depuración" else
-        (uploaded.name, len(uploaded.getvalue())) if uploaded else None,
+        input_record["fingerprint"] if input_record else None,
     )
     if source_id != st.session_state.get("sel_source_id") and (
-        source == "Resultado de depuración" or uploaded
+        source == "Resultado de depuración" or input_record
     ):
         try:
             st.session_state.sel_review = (
                 st.session_state.dep_result.elegibles.copy()
                 if source == "Resultado de depuración"
-                else pd.read_excel(io.BytesIO(uploaded.getvalue()))
+                else pd.read_excel(io.BytesIO(input_record["content"]))
             )
             st.session_state.sel_source_id = source_id
+            st.session_state.pop("sel_result", None)
+            st.session_state.pop("sel_zip", None)
         except Exception as exc:
             show_error(exc)
     review = st.session_state.get("sel_review")
@@ -460,7 +625,7 @@ def page_selection() -> None:
                 "Revision_Geografica.xlsx",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
-    if st.button("Seleccionar muestra", type="primary", disabled=source == "Archivo cargado" and not uploaded):
+    if st.button("Seleccionar muestra", type="primary", disabled=st.session_state.get("sel_review") is None or source_id != st.session_state.get("sel_source_id")):
         try:
             universe = st.session_state.sel_review.copy()
             with tempfile.TemporaryDirectory(prefix="planning-sel-") as temp:
@@ -480,7 +645,7 @@ def page_selection() -> None:
                 try:
                     pdf_result = copy.copy(result)
                     pdf_result.pais_activo = country
-                    previous = st.session_state.get("dep_result")
+                    previous = st.session_state.get("dep_result") if st.session_state.get("dep_result_country") == country else None
                     pdf_result.metricas = {
                         **(previous.metricas if previous is not None else {}),
                         **result.metricas,
@@ -490,18 +655,20 @@ def page_selection() -> None:
                 except Exception as exc:
                     st.warning(f"No se pudo generar el PDF consolidado: {exc}")
                 st.session_state.sel_result = result
+                st.session_state.sel_result_source_id = source_id
                 st.session_state.sel_zip = zip_outputs(files)
                 st.success(f"Selección terminada: {len(result.titulares):,} titulares y {len(result.suplentes):,} suplentes.")
         except Exception as exc:
             show_error(exc)
-    result = st.session_state.get("sel_result")
+    result = st.session_state.get("sel_result") if st.session_state.get("sel_result_source_id") == source_id else None
     if result is not None:
         st.dataframe(result.titulares.head(500), width="stretch")
         sel_cfg = cfg["paises"][country]["modulo_seleccion"]
         lat, lon = sel_cfg.get("columna_lat"), sel_cfg.get("columna_lon")
         if lat in result.titulares and lon in result.titulares:
             map_points(result.titulares, lat, lon, key="sel_map")
-    download_result("sel_zip", "Descargar selección y auditoría", "Seleccion.zip", "application/zip")
+    if result is not None:
+        download_result("sel_zip", "Descargar selección y auditoría", "Seleccion.zip", "application/zip")
 
 
 def page_routes() -> None:

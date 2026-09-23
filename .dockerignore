@@ -13,6 +13,14 @@ Salida Optimizacion Rutas
 Salida Matriz Distancias
 Salida Cruce y Poligonos
 Poligonos Muestras
+!Poligonos Muestras/
+Poligonos Muestras/*
+!Poligonos Muestras/DELIMITACION PAISES/
+Poligonos Muestras/DELIMITACION PAISES/*
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_ABVO.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_CR.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_EMBOCEN.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_NI.gpkg
 Resumenes
 Logs
 tmp
@@ -20,6 +28,10 @@ tmp
 *.xls
 *.xlsm
 *.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_ABVO.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_CR.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_EMBOCEN.gpkg
+!Poligonos Muestras/DELIMITACION PAISES/ICEKO_NI.gpkg
 *.shp
 *.shx
 *.dbf
