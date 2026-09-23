@@ -8,7 +8,7 @@ import pandas as pd
 
 from depuracion import DepuradorUniverso, ResultadoDepuracion
 from normalizacion import generar_codigo_puente, normalizar_llave
-from seleccion import ResultadoSeleccion, SelectorMuestra, dbscan_coordenadas
+from seleccion import ResultadoSeleccion, SelectorMuestra, dbscan_coordenadas, haversine_km
 
 
 class CodigoPuenteTests(unittest.TestCase):
@@ -232,6 +232,22 @@ class ReglaPXRTests(unittest.TestCase):
 
 
 class ClusterizacionSeleccionTests(unittest.TestCase):
+    def test_dispersion_coincide_con_distancias_haversine(self):
+        lat = np.array([8.98, 8.98, 9.1, -12.1, 0.0, 0.0])
+        lon = np.array([-79.52, -79.52, -79.4, -77.0, 179.9, -179.9])
+        titulares = pd.DataFrame({"_LAT": lat, "_LON": lon})
+        resultado = SelectorMuestra(Path("."), {})._calcular_dispersion(titulares)
+        esperado = haversine_km(lat[:, None], lon[:, None], lat[None, :], lon[None, :])
+        np.fill_diagonal(esperado, np.inf)
+        np.testing.assert_array_equal(
+            resultado["Dist_T_Cercano_km"].to_numpy(), np.round(esperado.min(axis=1), 3)
+        )
+
+    def test_dispersion_admite_miles_de_titulares_sin_matriz_cuadratica(self):
+        titulares = pd.DataFrame({"_LAT": np.zeros(5000), "_LON": np.zeros(5000)})
+        resultado = SelectorMuestra(Path("."), {})._calcular_dispersion(titulares)
+        self.assertTrue((resultado["Dist_T_Cercano_km"] == 0).all())
+
     def test_dbscan_detecta_nucleo_y_ruido(self):
         etiquetas = dbscan_coordenadas(
             np.array([0.0, 0.001, 0.0, 10.0]),

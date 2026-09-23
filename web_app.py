@@ -82,7 +82,7 @@ NAV_MODULES = (
 
 WORKFLOW_RESULT_KEYS = (
     "dep_result", "dep_result_country", "dep_zip", "sel_review", "sel_source_id",
-    "sel_result", "sel_result_source_id", "sel_zip",
+    "sel_result", "sel_result_source_id", "sel_xlsx", "sel_zip",
 )
 
 
@@ -607,6 +607,7 @@ def page_selection() -> None:
                 saved_inputs[country] = candidate
                 st.session_state.pop("sel_review", None)
                 st.session_state.pop("sel_result", None)
+                st.session_state.pop("sel_xlsx", None)
                 st.session_state.pop("sel_zip", None)
         except ValueError as exc:
             show_error(exc)
@@ -638,6 +639,7 @@ def page_selection() -> None:
             )
             st.session_state.sel_source_id = source_id
             st.session_state.pop("sel_result", None)
+            st.session_state.pop("sel_xlsx", None)
             st.session_state.pop("sel_zip", None)
         except Exception as exc:
             show_error(exc)
@@ -671,7 +673,7 @@ def page_selection() -> None:
             )
     if st.button("Seleccionar muestra", type="primary", disabled=st.session_state.get("sel_review") is None or source_id != st.session_state.get("sel_source_id")):
         try:
-            universe = st.session_state.sel_review.copy()
+            universe = st.session_state.sel_review
             with tempfile.TemporaryDirectory(prefix="planning-sel-") as temp:
                 selector = SelectorMuestra(Path(temp), copy.deepcopy(cfg["paises"][country]["modulo_seleccion"]))
                 selector.pais_activo = country
@@ -700,6 +702,7 @@ def page_selection() -> None:
                     st.warning(f"No se pudo generar el PDF consolidado: {exc}")
                 st.session_state.sel_result = result
                 st.session_state.sel_result_source_id = source_id
+                st.session_state.sel_xlsx = files["Seleccion.xlsx"]
                 st.session_state.sel_zip = zip_outputs(files)
                 st.success(f"Selección terminada: {len(result.titulares):,} titulares y {len(result.suplentes):,} suplentes.")
         except Exception as exc:
@@ -712,6 +715,10 @@ def page_selection() -> None:
         if lat in result.titulares and lon in result.titulares:
             map_points(result.titulares, lat, lon, key="sel_map")
     if result is not None:
+        download_result(
+            "sel_xlsx", "Descargar Excel final de selección", "Seleccion.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
         download_result("sel_zip", "Descargar selección y auditoría", "Seleccion.zip", "application/zip")
 
 

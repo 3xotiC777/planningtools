@@ -938,10 +938,26 @@ class SelectorMuestra:
         """Distancia de cada titular al titular más cercano (km)."""
         lat = t["_LAT"].to_numpy(float)
         lon = t["_LON"].to_numpy(float)
-        d = haversine_km(lat[:, None], lon[:, None], lat[None, :], lon[None, :])
-        np.fill_diagonal(d, np.inf)
         t = t.copy()
-        t["Dist_T_Cercano_km"] = np.round(d.min(axis=1), 3)
+        if len(t) < 2:
+            distancias = np.full(len(t), np.inf)
+        else:
+            # La cuerda de una esfera y la distancia haversine tienen el mismo
+            # orden. El árbol encuentra el vecino sin crear una matriz N×N.
+            from scipy.spatial import cKDTree
+
+            lat_rad = np.radians(lat)
+            lon_rad = np.radians(lon)
+            puntos = np.column_stack((
+                np.cos(lat_rad) * np.cos(lon_rad),
+                np.cos(lat_rad) * np.sin(lon_rad),
+                np.sin(lat_rad),
+            ))
+            vecinos = cKDTree(puntos).query(puntos, k=2)[1]
+            indices = np.arange(len(t))
+            cercanos = np.where(vecinos[:, 0] == indices, vecinos[:, 1], vecinos[:, 0])
+            distancias = haversine_km(lat, lon, lat[cercanos], lon[cercanos])
+        t["Dist_T_Cercano_km"] = np.round(distancias, 3)
         self.log.info(
             "Dispersión: distancia al T más cercano — mín %.3f km, "
             "mediana %.3f km, promedio %.3f km.",
@@ -958,6 +974,8 @@ class SelectorMuestra:
         """
         cfg, log = self.cfg, self.log
         n_sup = int(cfg["ratio_suplentes"])
+        if n_sup <= 0:
+            return pd.DataFrame()
         
         # Buscar la columna del código dinámicamente
         col_cod = next((c for c in [cfg.get("llave_universo"), "CÓDIGO", "CODIGO", "Codigo", "RefIDEmbotellador", "RefID"] if c and c in pool.columns), None)

@@ -21,15 +21,7 @@ jobs:
           python - <<'PY'
           from streamlit.testing.v1 import AppTest
           app = AppTest.from_file("web_app.py").run(timeout=60)
-          pages = [
-              "Configuración",
-              "Depuración de universo",
-              "Selección de muestra",
-              "Optimización de rutas",
-              "Cruce y generador de polígonos",
-              "Matriz de distancias",
-          ]
-          for page in pages:
-              app.sidebar.radio[0].set_value(page).run(timeout=60)
-              assert not app.exception, (page, [error.message for error in app.exception])
+          for option in app.sidebar.radio[0].options[:6]:
+              app.sidebar.radio[0].set_value(option).run(timeout=60)
+              assert not app.exception, (option, [error.message for error in app.exception])
           PY
